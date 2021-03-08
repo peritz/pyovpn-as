@@ -1,9 +1,12 @@
 """Contains the RPC client that will handle low-level XML-RPC API calls to the
 OpenVPN Access Server.
 """
+import base64
 import builtins
 import json
 import pathlib
+import ssl
+import xmlrpc.client
 from typing import Any
 
 
@@ -185,6 +188,78 @@ class _SupportedMethod:
         # 2. Call the function
         return self.__send(*params_to_submit)
 
+
+class RpcClient(object):
+    """The client to handle low-level XML-RPC calls to OpenVPN AS
+    
+    Attributes:
+        _serv_proxy (xmlrpc.client.ServerProxy): Manages communication with
+            OpenVPN XML-RPC endpoint
+        _debug (bool): Whether we are in debug mode, this is insecure
+        _allow_unsupported (bool): Whether we allow all functions (no official
+            support for this) to be called
+
+    Args:
+        endpoint (str): The full URI of the XML-RPC endpoint (usually 
+            https://<ip-of-access-server>/RPC2/)
+        username (str): Username of an admin user on the remote server
+        password (str): Password for the above user
+        **kwargs: 
+            debug (bool): can be set which will provide debug output and allow
+                for untrusted certificates on the remote server
+            allow_unsupported (bool): allow all method calls and now just those
+                that are officially supported
+
+    Raises:
+        ValueError: The password contains an illegal character
+    """
+    def __init__(self, endpoint, username, password, **kwargs):
+        if ':' in password:
+            raise ValueError('Password cannot contain ":"')
+
+        self._debug = kwargs.get('debug', False)
+        self._allow_unsupported= kwargs.get('allow_unsupported', False)
+        
+        auth_base64 = base64.urlsafe_b64encode(f'{username}:{password}')
+        auth_string = f'Basic {auth_base64.decode()}'
+
+        if self._debug:
+            # Allows untrusted certificates
+            ssl_context = ssl._create_unverified_context()
+        else:
+            # No debug, let ServerProxy do the SSL work
+            ssl_context = None
+        
+        self._serv_proxy = xmlrpc.client.ServerProxy(
+            endpoint,
+            allow_none=True,    # Needs set to allow for sending <nil/>
+            verbose=self._debug,
+            context=ssl_context,
+            headers=[
+                ('Authorization', auth_string)
+            ]
+        )
+        
+        # Try to connect to see if we can reach the server
+        self._serv_proxy.Version()
+
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self):
+        """Cleanup resources on exit, i.e. close the RPC connection
+        """
+        self._serv_proxy.close()
+
+    def __getattr__(self, attr: str) -> Any:
+        """Magic to return either the raw ServerProxy call or a supported 
+           method
+        """
+        if self._allow_unsupported:
+            return getattr(self._serv_proxy, attr)
+        else:
+            return _SupportedMethod(getattr(self._serv_proxy, attr), attr)
 
 
 # ---------------------------------
