@@ -33,6 +33,34 @@
             }
         ],
         "returns": "int"
+    },
+
+    "UserPropPut": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Username to change properties on"
+            },
+            {
+                "name": "props",
+                "type": "dict[str]",
+                "required": true,
+                "null": false,
+                "description": "Properties to change on the given user"
+            },
+            {
+                "name": "noui",
+                "type": "bool",
+                "required": true,
+                "null": false,
+                "default": false,
+                "description": "Whether the profile should be hidden on the Web Admin UI or not"
+            }
+        ],
+        "returns": null
     }
 
 }
