@@ -19,6 +19,20 @@
             }
         ],
         "returns": "dict"
+    },
+
+    "UserPropProfileCount": {
+        "params": [
+            {
+                "name": "tfilt",
+                "type": "list[str]",
+                "required": false,
+                "null": true,
+                "default": null,
+                "description": "Filter for profiles on type"
+            }
+        ],
+        "returns": "int"
     }
 
 }
