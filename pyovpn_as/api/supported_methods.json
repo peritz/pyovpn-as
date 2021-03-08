@@ -61,6 +61,28 @@
             }
         ],
         "returns": null
-    }
+    },
 
+    "UserPropReplace": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Username whose profile to replace"
+            },
+            {
+                "name": "profile",
+                "type": "dict[str]",
+                "required": true,
+                "null": false,
+                "description": "Replacement profile"
+            }
+        ],
+        "returns": [
+            "bool",
+            "dict"
+        ]
+    }
 }
