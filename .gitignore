@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignore virutal environment
+ps-venv/
+
+# Ignore VScode
+.vscode/
