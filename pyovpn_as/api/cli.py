@@ -128,3 +128,24 @@ class AccessServerClient:
         """
         return self._RpcClient.UserPropProfileMultiGet(tfilt, pfilt)
 
+    def UserPropDel(
+        self,
+        user: str,
+        key: str
+    ) -> list[bool, dict]:
+        """Delete a property from a profile
+
+        Args:
+            user (str): Name of the profile to delete the property from
+            key (str): Name of the property to delete
+
+        Returns:
+            list[bool, dict]
+        """
+        self._RpcClient.UserPropDel(user, [key,])
+        user_profile = self._RpcClient.UserPropProfileMultiGet(pfilt=[user,])
+        return self._RpcClient.UserPropReplace(
+            user,
+            user_profile[user]
+        )
+
