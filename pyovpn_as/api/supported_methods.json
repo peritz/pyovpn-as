@@ -84,5 +84,25 @@
             "bool",
             "dict"
         ]
+    },
+
+    "UserPropDel": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Username from which to delete properties"
+            },
+            {
+                "name": "keys",
+                "type": "list[str]",
+                "required": true,
+                "null": false,
+                "description": "List of keys to delete from profile"
+            }
+        ],
+        "returns": null
     }
 }
