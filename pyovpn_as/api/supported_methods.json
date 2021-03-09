@@ -51,9 +51,8 @@
             {
                 "name": "noui",
                 "type": "bool",
-                "required": true,
+                "required": false,
                 "null": false,
-                "default": false,
                 "description": "Whether the profile should be hidden on the Web Admin UI or not"
             }
         ],
