@@ -13,7 +13,6 @@
                 "type": "list[str]",
                 "required": false,
                 "null": true,
-                "default": null,
                 "description": "Filter for profiles on name"
             }
         ],
@@ -27,7 +26,6 @@
                 "type": "list[str]",
                 "required": false,
                 "null": true,
-                "default": null,
                 "description": "Filter for profiles on type"
             }
         ],
