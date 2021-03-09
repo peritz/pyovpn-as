@@ -36,7 +36,7 @@ class AccessServerBaseException(BaseException):
 # -----------------
 # ---- Methods ----
 # -----------------
-def translate_error(err: Exception) -> None:
+def translate_fault(err: Exception) -> None:
         """Translates a given exception into one more friendly for the user
 
         We return the exception rather than raise it because no error has
