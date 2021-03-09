@@ -50,6 +50,12 @@ class AccessServerPasswordIncorrectError(AccessServerAuthError):
     """
     pass
 
+class AccessServerPasswordResetError(AccessServerBaseException):
+    """Raised when something goes wrong that was not expected during a password
+       change method call (e.g. SetLocalPassword)
+    """
+    pass
+
 # -----------------
 # ---- Methods ----
 # -----------------
