@@ -244,7 +244,7 @@ class RpcClient(object):
         )
         
         # Try to connect to see if we can reach the server
-        self._serv_proxy.Version()
+        self._serv_proxy.GetASLongVersion()
 
 
     def __enter__(self):
