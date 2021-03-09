@@ -9,6 +9,7 @@ import ssl
 import xmlrpc.client
 from typing import Any
 
+from .exceptions import translate_fault
 
 class _SupportedMethod:
     """Code for this is similar to the same code as in xmlrpc.client for
@@ -185,8 +186,16 @@ class _SupportedMethod:
                 raise TypeError(f"{self.__name} missing argument '"
                     f"{p[self.NAME_KEY]}'")
                 
-        # 2. Call the function
-        return self.__send(*params_to_submit)
+        # 2. Call the function, catching and translating any errors
+        try:
+            return self.__send(*params_to_submit)
+        except xmlrpc.client.Fault as fault:
+            new_err = translate_fault(fault)
+            if fault == new_err:
+                raise fault
+            else:
+                raise new_err from fault
+
 
 
 class RpcClient(object):
