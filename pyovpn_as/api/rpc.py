@@ -247,6 +247,8 @@ class RpcClient(object):
         # Try to connect to see if we can reach the server
         self._serv_proxy.GetASLongVersion()
 
+    def close(self):
+        self._serv_proxy.close()
 
     def __enter__(self):
         return self
@@ -254,7 +256,7 @@ class RpcClient(object):
     def __exit__(self):
         """Cleanup resources on exit, i.e. close the RPC connection
         """
-        self._serv_proxy.close()
+        self.close()
 
     def __getattr__(self, attr: str) -> Any:
         """Magic to return either the raw ServerProxy call or a supported 
