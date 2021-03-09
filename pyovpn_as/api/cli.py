@@ -149,3 +149,23 @@ class AccessServerClient:
             user_profile[user]
         )
 
+    def UserPropDelAll(self, user:str) -> None:
+        """Deletes a profile from the server
+
+        Args:
+            user (str): Profile name to delete
+        """
+        self._RpcClient.UserPropProfileDelete(user)
+
+    def UserPropCount(self, tfilt: list[str]=None) -> int:
+        """Count the number of profiles that exist by filtering on profile type
+
+        Args:
+            tfilt (list[str], optional): Profile type to filter by. Defaults to
+                None.
+
+        Returns:
+            int: Number of profiles that match the given filter
+        """
+        return self._RpcClient.UserPropProfileCount(tfilt)
+
