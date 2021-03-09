@@ -109,3 +109,22 @@ class AccessServerClient:
             user_profile[user]
         )
 
+    def UserPropGet(
+        self,
+        tfilt: list[str]=None,
+        pfilt: list[str]=None
+    ) -> dict[str, dict[str, XML_RPC_VAL]]:
+        """Retrieves a list of profiles from the server, filtering on profile
+           name and profile type (e.g. user_connect or user_connect_hidden)
+
+        Args:
+            tfilt (list[str], optional): List of profile types to filter by.
+                Defaults to None.
+            pfilt (list[str], optional): List of profile names to filter by.
+                Defaults to None.
+
+        Returns:
+            dict[str, dict[str, XML_RPC_VAL]]: Dictionary of profiles retrieved
+        """
+        return self._RpcClient.UserPropProfileMultiGet(tfilt, pfilt)
+
