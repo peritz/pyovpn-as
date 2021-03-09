@@ -4,9 +4,8 @@
             {
                 "name": "tfilt",
                 "type": "list[str]",
-                "required": false,
+                "required": true,
                 "null": true,
-                "default": null,
                 "description": "Filter for profiles on type"
             },
             {
