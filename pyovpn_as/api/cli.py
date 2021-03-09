@@ -222,3 +222,79 @@ class AccessServerClient:
         """
         return self._RpcClient.UserPropProfileCount(tfilt)
 
+    def SetLocalPassword(
+        self,
+        user: str,
+        new_pass: str,
+        cur_pass: str=None,
+        ignore_checks: bool=False
+    ) -> SetLocalPasswordReturnVal:
+        """Set the password for a user if using local auth
+
+        This function works a little differently to how the CLI function works
+        in that unless checks are specifically ignored, we will enforce them.
+        
+        Further to the above, the API will not allow a password to be set (when
+        checks are not ignored) if there is not already a password set for that
+        user.
+        Therefore, if we get told there is not a password already set, we will
+        perform our own password complexity checks, and send the new password,
+        whilst ignoring the server checks, allowing us to set a password for a
+        first time/newly created user.
+
+        Raises:
+            AccessServerParameterError: current password is None and we're not
+                ignoring checks, or API has changed
+            AccessServerPasswordIncorrectError: Current password supplied is 
+                incorrect
+            AccessServerPasswordComplexityError: New password is not complex
+                enough
+            AccessServerPasswordResetError: Something else happened we didn't
+                expect
+
+        Args:
+            user (str): user to change password for
+            new_pass (str): the new password to set
+            cur_pass (str, optional): Current password, only needed if
+                ignore_checks is False. Defaults to None.
+            ignore_checks (bool, optional): Ignore password complexity and
+                current password checks. Defaults to False.
+        """
+        if not ignore_checks and cur_pass is None:
+            raise AccessServerParameterError(
+                'Must provide current password if not ignoring password checks'
+            )
+        
+        # Check password complexity before sending to server to save pain
+        if not ignore_checks:
+            self.is_password_complex(new_pass)
+
+        return_val = self._RpcClient.SetLocalPassword(
+            user, new_pass, cur_pass, ignore_checks
+        )
+        # Check if we are trying to set the password for a new user
+        if not return_val['status'] \
+            and not ignore_checks \
+            and return_val['reason'] == \
+            'error verifying current password: no current password is defined':
+            # Note that we have already checked the complexity of the password
+            # if we are not ignoring checks
+            return_val = self._RpcClient.SetLocalPassword(
+                user, new_pass, None, True
+            )
+            
+        # Was the current password we sent incorrect?
+        if not return_val['status'] \
+            and not ignore_checks \
+            and return_val['reason'] == \
+            'error verifying current password: failed to enter correct current password':
+            raise AccessServerPasswordIncorrectError('Failed to enter the '
+                f'correct current password for user "{user}"')
+
+        elif not return_val['status'] == False:
+            raise AccessServerPasswordResetError(
+                'Something unexpected happened while setting password for '
+                f'user "{user}": {return_val["reason"]}'
+            )
+        else:
+            return
