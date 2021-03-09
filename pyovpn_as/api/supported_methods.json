@@ -127,5 +127,10 @@
     "GetVPNStatus": {
         "params": [],
         "returns": "dict"
+    },
+
+    "GetASLongVersion": {
+        "params": [],
+        "returns": "str"
     }
 }
