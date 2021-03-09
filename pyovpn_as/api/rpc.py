@@ -220,7 +220,10 @@ class RpcClient(object):
         self._debug = kwargs.get('debug', False)
         self._allow_unsupported= kwargs.get('allow_unsupported', False)
         
-        auth_base64 = base64.urlsafe_b64encode(f'{username}:{password}')
+        auth_string = f'{username}:{password}'
+        auth_base64 = base64.urlsafe_b64encode(
+            auth_string.encode('utf-8')
+        )
         auth_string = f'Basic {auth_base64.decode()}'
 
         if self._debug:
