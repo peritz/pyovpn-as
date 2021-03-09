@@ -16,7 +16,7 @@
                 "description": "Filter for profiles on name"
             }
         ],
-        "returns": "dict"
+        "returns": "dict[str, dict]: Describes current existing profiles, where the keys are the profile names and the values are the profile descriptions"
     },
 
     "UserPropProfileCount": {
@@ -29,7 +29,7 @@
                 "description": "Filter for profiles on type"
             }
         ],
-        "returns": "int"
+        "returns": "int: number of profiles matching the given filter"
     },
 
     "UserPropPut": {
@@ -56,7 +56,7 @@
                 "description": "Whether the profile should be hidden on the Web Admin UI or not"
             }
         ],
-        "returns": null
+        "returns": "None"
     },
 
     "UserPropReplace": {
@@ -76,10 +76,7 @@
                 "description": "Replacement profile"
             }
         ],
-        "returns": [
-            "bool",
-            "dict"
-        ]
+        "returns": "list[bool, dict]: {True, {}} if operation succeeded"
     },
 
     "UserPropDel": {
@@ -99,7 +96,7 @@
                 "description": "List of keys to delete from profile"
             }
         ],
-        "returns": null
+        "returns": "None"
     },
 
     "UserPropProfileDelete": {
@@ -112,21 +109,21 @@
                 "description": "Username of the profile to delete"
             }
         ],
-        "returns": null
+        "returns": "None"
     },
 
     "GetVPNSummary": {
         "params": [],
-        "returns": "dict"
+        "returns": "dict: A summary of the VPN, including how may are connected"
     },
 
     "GetVPNStatus": {
         "params": [],
-        "returns": "dict"
+        "returns": "dict: Current status of the VPN"
     },
 
     "GetASLongVersion": {
         "params": [],
-        "returns": "str"
+        "returns": "str: Access Server Version"
     }
 }
