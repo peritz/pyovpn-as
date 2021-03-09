@@ -254,7 +254,15 @@ class RpcClient(object):
         )
         
         # Try to connect to see if we can reach the server
-        self._serv_proxy.GetASLongVersion()
+        try:
+            self._serv_proxy.GetASLongVersion()
+        except xmlrpc.client.Fault as fault:
+            self.close()
+            new_err = translate_fault(fault)
+            if new_err == fault:
+                raise fault
+            else:
+                raise new_err from fault
 
     def close(self):
         self._serv_proxy.close()
