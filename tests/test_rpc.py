@@ -285,6 +285,11 @@ test_method_def = {
                 rpc._SupportedMethod.NAME_KEY: "not_required",
                 rpc._SupportedMethod.REQUIRED_KEY: False,
                 rpc._SupportedMethod.NULL_KEY: False,
+            },
+            {
+                rpc._SupportedMethod.NAME_KEY: "not_required_2",
+                rpc._SupportedMethod.REQUIRED_KEY: False,
+                rpc._SupportedMethod.NULL_KEY: False,
             }
         ]
     }
@@ -315,14 +320,14 @@ class TestSupportedMethodCall(unittest.TestCase):
     def test_more_args_than_params_raises_TypeError(self):
         with self.assertRaisesRegex(
             TypeError,
-            "TestMethod expected at most 5 arguments, got 6"
+            "TestMethod expected at most [0-9]+ arguments, got [0-9]+"
         ):
-            self.method(1, 2, 3, 4, 5, 6)
+            self.method(1, 2, 3, 4, 5, 6, 7)
 
     def test_more_kwargs_than_params_raises_TypeError(self):
         with self.assertRaisesRegex(
             TypeError,
-            "TestMethod expected at most 5 arguments, got 6"
+            "TestMethod expected at most [0-9]+ arguments, got [0-9]+"
         ):
             self.method(
                 required=1,
@@ -330,19 +335,21 @@ class TestSupportedMethodCall(unittest.TestCase):
                 required_default=3,
                 required_null_default=4,
                 not_required=5,
-                doesnt_exist=6
+                not_required_2=6,
+                doesnt_exist=7
             )
     
     def test_more_args_kwargs_than_params_raises_TypeError(self):
         with self.assertRaisesRegex(
             TypeError,
-            "TestMethod expected at most 5 arguments, got 6"
+            "TestMethod expected at most [0-9]+ arguments, got [0-9]+"
         ):
             self.method(
                 1, 2, 3,
                 required_null_default=4,
                 not_required=5,
-                doesnt_exist=6
+                not_required_2=6,
+                doesnt_exist=7
             )
 
     def test_duplicate_arg_kwarg_raises_TypeError(self):
@@ -403,6 +410,20 @@ class TestSupportedMethodCall(unittest.TestCase):
             not_required=5
         )
         self.send_mock.assert_called_with(1, 2, 3, 'default', 5)
+
+    def test_skip_not_required_method_raises_TypeError(self):
+        with self.assertRaisesRegex(
+            TypeError,
+            "TestMethod missing argument 'not_required'"
+        ):
+            self.method(
+                required=1,
+                required_null=2,
+                required_default=3,
+                required_null_default=4,
+                not_required_2=6
+            )
+
 
 
 if __name__ == '__main__':
