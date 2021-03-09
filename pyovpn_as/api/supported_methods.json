@@ -104,5 +104,18 @@
             }
         ],
         "returns": null
+    },
+
+    "UserPropProfileDelete": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Username of the profile to delete"
+            }
+        ],
+        "returns": null
     }
 }
