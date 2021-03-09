@@ -80,3 +80,32 @@ class AccessServerClient:
     
     def close(self):
         self._RpcClient.close()
+    
+
+    def UserPropPut(
+        self,
+        user: str,
+        key: str,
+        value: XML_RPC_VAL,
+        noui: bool=False
+    ) -> list[bool, dict]:
+        """Add a property to a user profile (create user profile if it doesn't
+           exist)
+
+        Args:
+            user (str): Username of profile to change
+            key (str): Property name to put
+            value (XML_RPC_VAL): Value of the property
+            noui (bool, optional): Hide user profile in the WebUI. Defaults
+                to False.
+
+        Returns:
+            list[bool, dict]
+        """
+        self._RpcClient.UserPropPut(user, {key: value}, noui)
+        user_profile = self._RpcClient.UserPropProfileMultiGet(pfilt=[user,])
+        return self._RpcClient.UserPropReplace(
+            user,
+            user_profile[user]
+        )
+
