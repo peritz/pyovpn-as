@@ -205,8 +205,9 @@ class RpcClient(object):
         username (str): Username of an admin user on the remote server
         password (str): Password for the above user
         **kwargs: 
-            debug (bool): can be set which will provide debug output and allow
-                for untrusted certificates on the remote server
+            debug (bool): can be set which will provide debug output
+            allow_untrusted (bool): trusts untrusted SSL certificates coming
+                from the target server
             allow_unsupported (bool): allow all method calls and now just those
                 that are officially supported
 
@@ -226,11 +227,11 @@ class RpcClient(object):
         )
         auth_string = f'Basic {auth_base64.decode()}'
 
-        if self._debug:
+        if kwargs.get('allow_unsupported', False):
             # Allows untrusted certificates
             ssl_context = ssl._create_unverified_context()
         else:
-            # No debug, let ServerProxy do the SSL work
+            # Full trust only, let ServerProxy do the SSL work
             ssl_context = None
         
         self._serv_proxy = xmlrpc.client.ServerProxy(
