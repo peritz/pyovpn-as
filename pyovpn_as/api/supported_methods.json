@@ -122,5 +122,10 @@
     "GetVPNSummary": {
         "params": [],
         "returns": "dict"
+    },
+
+    "GetVPNStatus": {
+        "params": [],
+        "returns": "dict"
     }
 }
