@@ -9,6 +9,7 @@ Attributes:
 import logging
 from datetime import datetime
 from pyovpn_as.api.exceptions import AccessServerParameterError, AccessServerPasswordComplexityError, AccessServerPasswordIncorrectError, AccessServerPasswordResetError
+from typing import TypedDict, TypeVar
 
 from .rpc import RpcClient
 
@@ -129,6 +130,11 @@ class AccessServerClient:
         return True
 
     
+    class SetLocalPasswordReturnVal(TypedDict):
+        status: bool
+        reason: str
+    
+
     def UserPropPut(
         self,
         user: str,
