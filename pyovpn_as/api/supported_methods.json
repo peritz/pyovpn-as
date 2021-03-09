@@ -125,5 +125,40 @@
     "GetASLongVersion": {
         "params": [],
         "returns": "str: Access Server Version"
+    },
+
+    "SetLocalPassword": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": true,
+                "description": "User to set password for"
+            },
+            {
+                "name": "new_pass",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "default": "",
+                "description": "Password to set"
+            },
+            {
+                "name": "cur_pass",
+                "type": "str",
+                "required": false,
+                "null": true,
+                "description": "Current password (if required, can be null, but only in conjunction with ignore_checks)"
+            },
+            {
+                "name": "ignore_checks",
+                "type": "bool",
+                "required": false,
+                "null": true,
+                "description": "Ignore all complexity checks for the password and ignore value of cur_pass. I.e. set password to whatever is given regardless of whether the current password is correct or not."
+            }
+        ],
+        "returns": "dict: {'status': bool, 'reason': str} Where the status is whether or not the operation succeeded and 'reason' is why the status is the value that it is."
     }
 }
