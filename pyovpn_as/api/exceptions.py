@@ -44,6 +44,12 @@ class AccessServerPasswordComplexityError(AccessServerBaseException):
     """
     pass
 
+class AccessServerPasswordIncorrectError(AccessServerAuthError):
+    """Raised when the current password sent to the server during a password
+       password change method call (e.g. SetLocalPassword) is incorrect
+    """
+    pass
+
 # -----------------
 # ---- Methods ----
 # -----------------
