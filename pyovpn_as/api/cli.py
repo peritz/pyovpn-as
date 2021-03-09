@@ -8,7 +8,7 @@ Attributes:
 
 import logging
 from datetime import datetime
-from typing import TypeVar
+from pyovpn_as.api.exceptions import AccessServerParameterError, AccessServerPasswordComplexityError, AccessServerPasswordIncorrectError, AccessServerPasswordResetError
 
 from .rpc import RpcClient
 
@@ -80,8 +80,55 @@ class AccessServerClient:
     
     def close(self):
         self._RpcClient.close()
-    
 
+
+    @staticmethod
+    def is_password_complex(new_pass: str) -> bool:
+        """Validate that a password is suitably complex for OpenVPN AS
+
+        An OpenVPN Access Server password must be at least 8 characters long and
+        contain a digit, an uppercase letter, a lowercase letter and a symbol
+        from !@#$%&'()*+,-/[\\]^_`{|}~<>. (full stop included, also note
+        absence of colon and double quotation marks).
+
+        Args:
+            new_pass (str): Password to check validate
+
+        Raises:
+            AccessServerPasswordComplexityError: Password is not complex enough
+
+        Returns:
+            bool: True if the password is suitably complex
+        """
+        complexity_err = AccessServerPasswordComplexityError(
+            "New Password must be at least 8 characters. Password must "
+            "also contain a digit, an Uppercase letter, and a symbol from "
+            "!@#$%&'()*+,-/[\\]^_`{|}~<>."
+        )
+        # Length
+        if len(new_pass) < 8:
+            raise complexity_err
+        # Uppercase lowercase
+        if new_pass.upper() == new_pass or new_pass.lower() == new_pass:
+            raise complexity_err
+        # Digit
+        contains_digit = False
+        for i in '0123456789':
+            if i in new_pass:
+                contains_digit = True
+                break
+        # Symbol
+        contains_symbol = False
+        for s in "!@#$%&'()*+,-/[\\]^_`{|}~<>.":
+            if s in new_pass:
+                contains_symbol = True
+                break
+        if not contains_symbol or not contains_digit:
+            raise complexity_err
+        
+        return True
+
+    
     def UserPropPut(
         self,
         user: str,
