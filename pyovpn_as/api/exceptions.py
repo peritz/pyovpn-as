@@ -33,6 +33,17 @@ class AccessServerInternalError(AccessServerBaseException):
     """
     pass
 
+class AccessServerPasswordComplexityError(AccessServerBaseException):
+    """Raised when the new password sent to the server during a password change
+       does not meet the complexity requirements set by the server.
+
+    Generally speaking, the Access Server requires passwords to be at least 8
+    characters long, contain an uppercase letter, a lowercase letter, a digit
+    and a symbol from !@#$%&'()*+,-/[\\]^_`{|}~<>. (full stop included, also
+    note the absence of colon and double quotation marks).
+    """
+    pass
+
 # -----------------
 # ---- Methods ----
 # -----------------
