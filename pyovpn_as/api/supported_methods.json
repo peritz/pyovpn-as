@@ -117,5 +117,10 @@
             }
         ],
         "returns": null
+    },
+
+    "GetVPNSummary": {
+        "params": [],
+        "returns": "dict"
     }
 }
