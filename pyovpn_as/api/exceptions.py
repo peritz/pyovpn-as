@@ -33,6 +33,12 @@ class AccessServerInternalError(AccessServerBaseException):
     """
     pass
 
+class AccessServerFunctionNotFoundError(AccessServerBaseException):
+    """Raised when the Fault Code is 9000 and Fault String is "XMLRPCRelay:
+       XMLRPC: function not found"
+    """
+    pass
+
 class AccessServerPasswordComplexityError(AccessServerBaseException):
     """Raised when the new password sent to the server during a password change
        does not meet the complexity requirements set by the server.
@@ -96,4 +102,10 @@ def translate_fault(err: Exception) -> None:
                 'Something unknown went wrong with that call that the server '
                 'did not like'
             )
+        elif err.faultCode == 9000 and \
+            err.faultString == 'XMLRPCRelay: XMLRPC: function not found':
+            return AccessServerFunctionNotFoundError(
+               'Function not found on given server'
+            )
+
 
