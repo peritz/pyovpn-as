@@ -106,6 +106,15 @@ class AccessServerClient:
             "also contain a digit, an Uppercase letter, and a symbol from "
             "!@#$%&'()*+,-/[\\]^_`{|}~<>."
         )
+        # None
+        if new_pass is None:
+            raise complexity_err
+        # Catch someone not passing string
+        if not isinstance(new_pass, str):
+            raise TypeError(
+                'is_password_complex expected new_pass to be str, got '
+                f'{type(new_pass)}'
+            )
         # Length
         if len(new_pass) < 8:
             raise complexity_err
