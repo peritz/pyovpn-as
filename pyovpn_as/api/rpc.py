@@ -236,7 +236,7 @@ class RpcClient(object):
         )
         auth_string = f'Basic {auth_base64.decode()}'
 
-        if kwargs.get('allow_unsupported', False):
+        if kwargs.get('allow_untrusted', False):
             # Allows untrusted certificates
             ssl_context = ssl._create_unverified_context()
         else:
