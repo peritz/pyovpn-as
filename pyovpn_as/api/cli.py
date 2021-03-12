@@ -256,7 +256,8 @@ class AccessServerClient:
             user (str): user to change password for
             new_pass (str): the new password to set
             cur_pass (str, optional): Current password, only needed if
-                ignore_checks is False. Defaults to None.
+                ignore_checks is False. If user is new you should provide an
+                empty password. Defaults to None.
             ignore_checks (bool, optional): Ignore password complexity and
                 current password checks. Defaults to False.
         """
