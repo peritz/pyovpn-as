@@ -62,6 +62,12 @@ class AccessServerPasswordResetError(AccessServerBaseException):
     """
     pass
 
+class AccessServerUnexpectedError(AccessServerBaseException):
+    """Raised when an error occurs that we hadn't accounted for. If this is
+       raised we should review the error closely and create a new exception
+       class for it
+    """
+
 # -----------------
 # ---- Methods ----
 # -----------------
@@ -106,6 +112,12 @@ def translate_fault(err: Exception) -> None:
             err.faultString == 'XMLRPCRelay: XMLRPC: function not found':
             return AccessServerFunctionNotFoundError(
                'Function not found on given server'
+            )
+        else:
+            return AccessServerUnexpectedError(
+                'Something happened that we were not expecting.\n'
+                f'Fault Code: {err.faultCode}\n'
+                f'Fault String: "{err.faultString}"'
             )
 
 
