@@ -67,6 +67,13 @@ class AccessServerUnexpectedError(AccessServerBaseException):
        raised we should review the error closely and create a new exception
        class for it
     """
+    pass
+
+class AccessServerConfigurationError(AccessServerBaseException):
+    """Raised when the configuration we have attempted to use for creating an
+       AccessServerClient is invalid, e.g. no endpoint configured
+    """
+    pass
 
 # -----------------
 # ---- Methods ----
