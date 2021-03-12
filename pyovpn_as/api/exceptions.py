@@ -3,43 +3,43 @@
 """
 import xmlrpc.client
 
-class AccessServerBaseException(BaseException):
+class ApiClientBaseException(BaseException):
     """Used as a base exception for other errors in the API conversation
        that are not XMLRPC Faults, e.g. bad password in SetLocalPassword
     """
     pass
 
-class AccessServerAuthError(AccessServerBaseException):
+class ApiCientAuthError(ApiClientBaseException):
     """Given by Fault Code 9007, this error pertains to the user either not 
        having correct permissions or their login being incorrect.
     """
     pass
 
-class AccessServerParameterError(AccessServerBaseException):
+class ApiClientParameterError(ApiClientBaseException):
     """Given by Fault Code 8002, this error indicates that the number of 
        parameters passed to the given method is incorrect
     """
     pass
 
-class AccessServerValueError(AccessServerBaseException):
+class ApiClientValueError(ApiClientBaseException):
     """The Fault Code for this exception will be 9000, but the Fault String
        will begin with something like 'XMLRPCRelay: exceptions.ValueError:'
     """
     pass
 
-class AccessServerInternalError(AccessServerBaseException):
+class ApiClientInternalError(ApiClientBaseException):
     """Raised when the Fault Code is 9000 and Fault String is "XMLRPC: 
        internal error"
     """
     pass
 
-class AccessServerFunctionNotFoundError(AccessServerBaseException):
+class ApiClientFunctionNotFoundError(ApiClientBaseException):
     """Raised when the Fault Code is 9000 and Fault String is "XMLRPCRelay:
        XMLRPC: function not found"
     """
     pass
 
-class AccessServerPasswordComplexityError(AccessServerBaseException):
+class ApiClientPasswordComplexityError(ApiClientBaseException):
     """Raised when the new password sent to the server during a password change
        does not meet the complexity requirements set by the server.
 
@@ -50,26 +50,26 @@ class AccessServerPasswordComplexityError(AccessServerBaseException):
     """
     pass
 
-class AccessServerPasswordIncorrectError(AccessServerAuthError):
+class ApiClientPasswordIncorrectError(ApiCientAuthError):
     """Raised when the current password sent to the server during a password
        password change method call (e.g. SetLocalPassword) is incorrect
     """
     pass
 
-class AccessServerPasswordResetError(AccessServerBaseException):
+class ApiClientPasswordResetError(ApiClientBaseException):
     """Raised when something goes wrong that was not expected during a password
        change method call (e.g. SetLocalPassword)
     """
     pass
 
-class AccessServerUnexpectedError(AccessServerBaseException):
+class ApiClientUnexpectedError(ApiClientBaseException):
     """Raised when an error occurs that we hadn't accounted for. If this is
        raised we should review the error closely and create a new exception
        class for it
     """
     pass
 
-class AccessServerConfigurationError(AccessServerBaseException):
+class ApiClientConfigurationError(ApiClientBaseException):
     """Raised when the configuration we have attempted to use for creating an
        AccessServerClient is invalid, e.g. no endpoint configured
     """
@@ -94,11 +94,11 @@ def translate_fault(err: Exception) -> None:
         if not isinstance(err, xmlrpc.client.Fault):
             return err
         elif err.faultCode == 8002:
-            return AccessServerParameterError(
+            return ApiClientParameterError(
                 'Number of parameters is incorrect'
             )
         elif err.faultCode == 9007:
-            return AccessServerAuthError(
+            return ApiCientAuthError(
                 'Either your credentials are wrong or your permissions are not'
                 ' correct to run the given method.'
             )
@@ -106,22 +106,22 @@ def translate_fault(err: Exception) -> None:
             'XMLRPCRelay: exceptions.ValueError: '
         ):
             start_from = len('XMLRPCRelay: exceptions.ValueError: ')
-            return AccessServerValueError(
+            return ApiClientValueError(
                 f'ValueError from server: {err.faultString[start_from:]}'
             )
         elif err.faultCode == 9000 and \
             err.faultString == 'XMLRPC: internal error':
-            return AccessServerInternalError(
+            return ApiClientInternalError(
                 'Something unknown went wrong with that call that the server '
                 'did not like'
             )
         elif err.faultCode == 9000 and \
             err.faultString == 'XMLRPCRelay: XMLRPC: function not found':
-            return AccessServerFunctionNotFoundError(
+            return ApiClientFunctionNotFoundError(
                'Function not found on given server'
             )
         else:
-            return AccessServerUnexpectedError(
+            return ApiClientUnexpectedError(
                 'Something happened that we were not expecting.\n'
                 f'Fault Code: {err.faultCode}\n'
                 f'Fault String: "{err.faultString}"'

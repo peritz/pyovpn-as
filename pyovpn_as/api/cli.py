@@ -8,7 +8,7 @@ Attributes:
 
 import logging
 from datetime import datetime
-from pyovpn_as.api.exceptions import AccessServerParameterError, AccessServerPasswordComplexityError, AccessServerPasswordIncorrectError, AccessServerPasswordResetError
+from pyovpn_as.api.exceptions import ApiClientParameterError, ApiClientPasswordComplexityError, ApiClientPasswordIncorrectError, ApiClientPasswordResetError
 from typing import TypedDict, TypeVar
 
 from .rpc import RpcClient
@@ -54,7 +54,7 @@ class AccessServerClient:
     
     Raises:
         ValueError: Password contains and illegal character
-        AccessServerBaseException: Something went wrong in connecting to the
+        ApiClientBaseException: Something went wrong in connecting to the
             AccessServer endpoint
     """
     def __init__(
@@ -96,12 +96,12 @@ class AccessServerClient:
             new_pass (str): Password to check validate
 
         Raises:
-            AccessServerPasswordComplexityError: Password is not complex enough
+            ApiClientPasswordComplexityError: Password is not complex enough
 
         Returns:
             bool: True if the password is suitably complex
         """
-        complexity_err = AccessServerPasswordComplexityError(
+        complexity_err = ApiClientPasswordComplexityError(
             "New Password must be at least 8 characters. Password must "
             "also contain a digit, an Uppercase letter, and a symbol from "
             "!@#$%&'()*+,-/[\\]^_`{|}~<>."
@@ -252,13 +252,13 @@ class AccessServerClient:
         first time/newly created user.
 
         Raises:
-            AccessServerParameterError: current password is None and we're not
+            ApiClientParameterError: current password is None and we're not
                 ignoring checks, or API has changed
-            AccessServerPasswordIncorrectError: Current password supplied is 
+            ApiClientPasswordIncorrectError: Current password supplied is 
                 incorrect
-            AccessServerPasswordComplexityError: New password is not complex
+            ApiClientPasswordComplexityError: New password is not complex
                 enough
-            AccessServerPasswordResetError: Something else happened we didn't
+            ApiClientPasswordResetError: Something else happened we didn't
                 expect
 
         Args:
@@ -271,7 +271,7 @@ class AccessServerClient:
                 current password checks. Defaults to False.
         """
         if not ignore_checks and cur_pass is None:
-            raise AccessServerParameterError(
+            raise ApiClientParameterError(
                 'Must provide current password if not ignoring password checks'
             )
         
@@ -298,11 +298,11 @@ class AccessServerClient:
             and not ignore_checks \
             and return_val['reason'] == \
             'error verifying current password: failed to enter correct current password':
-            raise AccessServerPasswordIncorrectError('Failed to enter the '
+            raise ApiClientPasswordIncorrectError('Failed to enter the '
                 f'correct current password for user "{user}"')
 
         elif not return_val['status'] == False:
-            raise AccessServerPasswordResetError(
+            raise ApiClientPasswordResetError(
                 'Something unexpected happened while setting password for '
                 f'user "{user}": {return_val["reason"]}'
             )
