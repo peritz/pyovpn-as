@@ -1,6 +1,7 @@
 """Provides functions to fetch AccessServerClient from multiple different
    credential sources, e.g. environment variables or a file
 """
+import json
 import logging
 import os
 import urllib.parse
@@ -169,3 +170,49 @@ def from_env() -> cli.AccessServerClient:
         debug, allow_untrusted
     )
 
+
+def from_file(filepath: os.PathLike) -> cli.AccessServerClient:
+    """Retrieve client configuration from file
+
+    The file must be a JSON file with a single object, specifying the following:
+        endpoint_url (str): The endpoint of the AS RPC API (https://<ip>/RPC2)
+        username (str): Username to authenticate as
+        password (str): Password for the above
+        debug (bool, optional): Whether to provide debug information, default
+            is false
+        allow_untrusted (bool, optional): Whether to allow unverified SSL certs
+            from server, default is false, should be turned off in production
+
+    Args:
+        filepath (os.PathLike): JSON file for configuration
+
+    Returns:
+        cli.AccessServerClient: The client configured using the above options
+    """
+    logging.debug(f'from_file() called with ({repr(filepath)})')
+    with open(filepath) as config_file:
+        config = json.loads(config_file.read())
+    
+    endpoint = config.get('endpoint_url')
+    username = config.get('username')
+    password = config.get('password')
+
+    validate_client_args(endpoint, username, password)
+
+    debug = config.get('debug', False)
+    allow_untrusted = config.get('allow_untrusted', False)
+
+    if not isinstance(debug, bool) or not isinstance(allow_untrusted, bool):
+        raise exceptions.ApiClientConfigurationError(
+            'debug and allow_untrusted must be either true or false'
+        )
+    
+    logging.info(
+        f'Creating client with ({repr(endpoint)}, {repr(username)}, '
+        f'{repr(password)}, {repr(debug)}, {repr(allow_untrusted)})'
+    )
+    return cli.AccessServerClient(
+        endpoint, username, password, debug, allow_untrusted
+    )
+
+    
