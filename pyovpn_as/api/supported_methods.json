@@ -160,5 +160,18 @@
             }
         ],
         "returns": "dict: {'status': bool, 'reason': str} Where the status is whether or not the operation succeeded and 'reason' is why the status is the value that it is."
+    },
+
+    "AutoGenerateOnBehalfOf": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "The user for which to generate the client record. The username of the user we are generating the client config for will become the common name associated with the certificate"
+            }
+        ],
+        "returns": "None"
     }
 }
