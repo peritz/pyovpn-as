@@ -22,3 +22,10 @@ class AccessServerBaseException(BaseException):
     """Base exception for all exceptions in this module
     """
     pass
+
+
+class AccessServerProfileExistsError(AccessServerBaseException):
+    """Raised when we try to create a user or group that already exists
+    """
+    pass
+
