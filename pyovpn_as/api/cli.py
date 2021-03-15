@@ -319,3 +319,12 @@ class AccessServerClient:
             user (str): The user to create the client record for
         """
         self._RpcClient.AutoGenerateOnBehalfOf(user)
+
+    def EnumClients(self) -> list[str]:
+        """Fetch the list of client names in the database where a client is a
+           common name that can connect to the VPN
+
+        Returns:
+            list[str]: a list of client names
+        """
+        return self._RpcClient.EnumClients()
