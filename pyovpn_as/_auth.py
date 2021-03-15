@@ -170,3 +170,37 @@ def create_new_user(
         profile = profile_dict.get(username)
         assert profile is not None
         return profile
+
+def create_client_for_user(client: AccessServerClient, user: str) -> None:
+    """Creates a new client record for a given user, or raises an error if one
+       exists
+
+    Args:
+        client (AccessServerClient): Client used to connect to Access Server
+        user (str): Username to generate the client for
+
+    Raises:
+        AccessServerClientExistsError: A client record for the given user
+            already exists
+    """
+    logger.debug(
+        f'create_client_for_user() called with {repr(client)}, {repr(user)}'
+    )
+    # 1. Verify we are creating a client for an existing user
+    get_user(client, user)
+
+    # 2. Check if there is already an existing client
+    existing_clients = client.EnumClients()
+    if user in existing_clients:
+        raise _exceptions.AccessServerClientExistsError(
+            f'Client record already exists for "{user}"'
+        )
+    
+    # 3. Create client config and validate it exists
+    client.AutoGenerateOnBehalfOf(user)
+    new_existing_clients = client.EnumClients()
+    if user not in new_existing_clients:
+        raise _exceptions.AccessServerClientCreateError(
+            f'Creation of client record for "{user}" failed for an unknown'
+            ' reason'
+        )
