@@ -79,52 +79,52 @@ class ApiClientConfigurationError(ApiClientBaseException):
 # ---- Methods ----
 # -----------------
 def translate_fault(err: Exception) -> None:
-        """Translates a given exception into one more friendly for the user
+    """Translates a given exception into one more friendly for the user
 
-        We return the exception rather than raise it because no error has
-        occurred in this method. We return so that it can be raised in the right
-        place to prevent confusion.
+    We return the exception rather than raise it because no error has
+    occurred in this method. We return so that it can be raised in the right
+    place to prevent confusion.
 
-        Args:
-            err (Exception): The Exception to translate
+    Args:
+        err (Exception): The Exception to translate
 
-        Returns:
-            Exception: this time it's the correct type with message and all
-        """
-        if not isinstance(err, xmlrpc.client.Fault):
-            return err
-        elif err.faultCode == 8002:
-            return ApiClientParameterError(
-                'Number of parameters is incorrect'
-            )
-        elif err.faultCode == 9007:
-            return ApiCientAuthError(
-                'Either your credentials are wrong or your permissions are not'
-                ' correct to run the given method.'
-            )
-        elif err.faultCode == 9000 and err.faultString.startswith(
-            'XMLRPCRelay: exceptions.ValueError: '
-        ):
-            start_from = len('XMLRPCRelay: exceptions.ValueError: ')
-            return ApiClientValueError(
-                f'ValueError from server: {err.faultString[start_from:]}'
-            )
-        elif err.faultCode == 9000 and \
-            err.faultString == 'XMLRPC: internal error':
-            return ApiClientInternalError(
-                'Something unknown went wrong with that call that the server '
-                'did not like'
-            )
-        elif err.faultCode == 9000 and \
-            err.faultString == 'XMLRPCRelay: XMLRPC: function not found':
-            return ApiClientFunctionNotFoundError(
-               'Function not found on given server'
-            )
-        else:
-            return ApiClientUnexpectedError(
-                'Something happened that we were not expecting.\n'
-                f'Fault Code: {err.faultCode}\n'
-                f'Fault String: "{err.faultString}"'
-            )
+    Returns:
+        Exception: this time it's the correct type with message and all
+    """
+    if not isinstance(err, xmlrpc.client.Fault):
+        return err
+    elif err.faultCode == 8002:
+        return ApiClientParameterError(
+            'Number of parameters is incorrect'
+        )
+    elif err.faultCode == 9007:
+        return ApiCientAuthError(
+            'Either your credentials are wrong or your permissions are not'
+            ' correct to run the given method.'
+        )
+    elif err.faultCode == 9000 and err.faultString.startswith(
+        'XMLRPCRelay: exceptions.ValueError: '
+    ):
+        start_from = len('XMLRPCRelay: exceptions.ValueError: ')
+        return ApiClientValueError(
+            f'ValueError from server: {err.faultString[start_from:]}'
+        )
+    elif err.faultCode == 9000 and \
+        err.faultString == 'XMLRPC: internal error':
+        return ApiClientInternalError(
+            'Something unknown went wrong with that call that the server '
+            'did not like'
+        )
+    elif err.faultCode == 9000 and \
+        err.faultString == 'XMLRPCRelay: XMLRPC: function not found':
+        return ApiClientFunctionNotFoundError(
+            'Function not found on given server'
+        )
+    else:
+        return ApiClientUnexpectedError(
+            'Something happened that we were not expecting.\n'
+            f'Fault Code: {err.faultCode}\n'
+            f'Fault String: "{err.faultString}"'
+        )
 
 
