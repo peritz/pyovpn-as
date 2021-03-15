@@ -99,7 +99,7 @@ def create_new_user(
         f' {group}, {prop_superuser}, {prop_autologin}, {prop_deny}, '
         f'{prop_pwd_change}, {prop_pwd_strength})'
     )
-    profile_dict = client.UserPropGet(pfilt=[username])
+    profile_dict = client.UserPropGet(pfilt=[username,])
     if profile_dict.get(username) is not None:
         raise _exceptions.AccessServerProfileExistsError(
             f'Profile for "{username}" already exists on the server'
