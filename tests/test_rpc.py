@@ -411,7 +411,7 @@ class TestSupportedMethodCall(unittest.TestCase):
         )
         self.send_mock.assert_called_with(1, 2, 3, 'default', 5)
 
-    def test_skip_not_required_method_raises_TypeError(self):
+    def test_skip_not_required_parameter_raises_TypeError(self):
         with self.assertRaisesRegex(
             TypeError,
             "TestMethod missing argument 'not_required'"
