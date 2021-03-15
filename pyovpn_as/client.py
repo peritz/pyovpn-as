@@ -130,6 +130,10 @@ def from_env() -> cli.AccessServerClient:
     * `PYOVPN_AS_ALLOW_UNTRUSTED` - Allow untrusted/unverified SSL context from
         Access Server, defaults to false
 
+    Raises:
+        ApiClientConfigurationError: Environment variables were invalid in some 
+            way
+
     Returns:
         cli.AccessServerClient: configured using the above values
     """
@@ -185,6 +189,9 @@ def from_file(filepath: os.PathLike) -> cli.AccessServerClient:
 
     Args:
         filepath (os.PathLike): JSON file for configuration
+
+    Raises:
+        ApiClientConfigurationError: JSON configuration was invalid in some way
 
     Returns:
         cli.AccessServerClient: The client configured using the above options
