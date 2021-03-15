@@ -39,3 +39,9 @@ class AccessServerProfileNotFoundError(AccessServerBaseException):
 class AccessServerProfileCreateError(AccessServerBaseException):
     """Raised when an error is encountered when creating a new profile
     """
+
+
+class AccessServerClientExistsError(AccessServerBaseException):
+    """Raised when we try to create a client record that already exists
+    """
+    pass
