@@ -173,5 +173,10 @@
             }
         ],
         "returns": "None"
+    },
+
+    "EnumClients": {
+        "params": [],
+        "returns": "list[str]: A list of client configuration names that have a record in the db. This is the list of common names that can be used to connect to the VPN."
     }
 }
