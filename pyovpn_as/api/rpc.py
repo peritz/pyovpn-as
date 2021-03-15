@@ -221,11 +221,13 @@ class RpcClient(object):
                 that are officially supported
 
     Raises:
-        ValueError: The password contains an illegal character
+        ValueError: The username or password contains an illegal character
     """
     def __init__(self, endpoint, username, password, **kwargs):
         if ':' in password:
             raise ValueError('Password cannot contain ":"')
+        elif ':' in username:
+            raise ValueError('Username cannot contain ":"')
 
         self._debug = kwargs.get('debug', False)
         self._allow_unsupported= kwargs.get('allow_unsupported', False)
