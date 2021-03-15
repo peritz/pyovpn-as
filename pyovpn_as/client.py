@@ -3,6 +3,7 @@
 """
 import urllib.parse
 
+from .api import exceptions
 
 def validate_endpoint(url: str) -> bool:
     """Validates that a given URL is a (syntactically) valid endpoint URI for
@@ -40,5 +41,68 @@ def validate_endpoint(url: str) -> bool:
         parsed.port
     except ValueError:
         return False
+    else:
+        return True
+
+
+def validate_client_args(
+    endpoint: str, username: str, password: str
+) -> bool:
+    """Validates that the endpoint, username, and password are all valid options
+       to pass to the AccessServerClient class
+
+    Args:
+        endpoint (str): Endpoint the client will connect to
+        username (str): Username which must not be blank or None and must be a
+            string
+        password (str): Password which must not be blank or contain the :
+            character
+    """
+    # Endpoint
+    if endpoint is None:
+        raise exceptions.ApiClientConfigurationError(
+            'Endpoint URL has not been set, cannot create client'
+        )
+    elif not isinstance(endpoint, str):
+        raise exceptions.ApiClientConfigurationError(
+            'Endpoint URL is not a string, cannot create client'
+        )
+    elif not validate_endpoint(endpoint):
+        raise exceptions.ApiClientConfigurationError(
+            'Endpoint URL is invalid as an endpoint URI.\n'
+            'Endpoints must be https, must not contain usernames, passwords, '
+            'param strings, or fragments, and must have either no port or a'
+            'valid port.'
+        )
+    
+    # Username
+    elif username is None:
+        raise exceptions.ApiClientConfigurationError(
+            'Username is not set, cannot create client'
+        )
+    elif not isinstance(username, str):
+        raise exceptions.ApiClientConfigurationError(
+            'Username is not a string, cannot create client'
+        )
+    elif ':' in username:
+        raise exceptions.ApiClientConfigurationError(
+            'Username contains ":" character (illegal in basic auth),'
+            'cannot create client'
+        )
+    
+    # Password
+    elif password is None:
+        raise exceptions.ApiClientConfigurationError(
+            'Password is not set, cannot create client'
+        )
+    elif not isinstance(password, str):
+        raise exceptions.ApiClientConfigurationError(
+            'Password is not a string, cannot create client'
+        )
+    elif ':' in password:
+        raise exceptions.ApiClientConfigurationError(
+            'Password contains ":" character (illegal in basic auth),'
+            'cannot create client'
+        )
     else:
         return True
