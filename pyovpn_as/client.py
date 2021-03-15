@@ -1,9 +1,16 @@
 """Provides functions to fetch AccessServerClient from multiple different
    credential sources, e.g. environment variables or a file
 """
+import logging
+import os
 import urllib.parse
 
+from .api import cli
 from .api import exceptions
+
+
+logger = logging.getLogger(__name__)
+
 
 def validate_endpoint(url: str) -> bool:
     """Validates that a given URL is a (syntactically) valid endpoint URI for
@@ -105,3 +112,60 @@ def validate_client_args(
         )
     else:
         return True
+
+
+
+def from_env() -> cli.AccessServerClient:
+    """Gets parameters for Access Server from environment variables
+
+    The environment variables we are looking for here are:
+    * `PYOVPN_AS_ENDPOINT_URL` - The endpoint of the Access Server API
+    * `PYOVPN_AS_USERNAME` - Username to authenticate
+    * `PYOVPN_AS_PASSWORD` - Password to authenticate
+
+    The below environment variables are optional, and may be set to either
+    "true" or "false"
+    * `PYOVPN_AS_DEBUG` - Are we in debug mode, defaults to false
+    * `PYOVPN_AS_ALLOW_UNTRUSTED` - Allow untrusted/unverified SSL context from
+        Access Server, defaults to false
+
+    Returns:
+        cli.AccessServerClient: configured using the above values
+    """
+    logging.debug(f'from_env() called')
+    endpoint = os.environ.get('PYOVPN_AS_ENDPOINT_URL')
+    username = os.environ.get('PYOVPN_AS_USERNAME')
+    password = os.environ.get('PYOVPN_AS_PASSWORD')
+    
+    validate_client_args(endpoint, username, password)
+
+    debug_str = os.environ.get('PYOVPN_AS_DEBUG', 'false')
+    allow_untrusted_str = os.environ.get('PYOVPN_AS_ALLOW_UNTRUSTED', 'false')
+
+    if debug_str.lower() == 'true':
+        debug = True
+    elif debug_str.lower() == 'false':
+        debug = False
+    else:
+        raise exceptions.ApiClientConfigurationError(
+            'PYOVPN_AS_DEBUG must be either true or false'
+        )
+
+    if allow_untrusted_str.lower() == 'true':
+        allow_untrusted = True
+    elif allow_untrusted_str.lower() == 'false':
+        allow_untrusted = False
+    else:
+        raise exceptions.ApiClientConfigurationError(
+            'PYOVPN_AS_ALLOW_UNTRUSTED must be either true or false'
+        )
+
+    logging.info(
+        f'Creating client with ({repr(endpoint)}, {repr(username)}, '
+        f'{repr(password)}, {repr(debug)}, {repr(allow_untrusted)})'
+    )
+    return cli.AccessServerClient(
+        endpoint, username, password,
+        debug, allow_untrusted
+    )
+
