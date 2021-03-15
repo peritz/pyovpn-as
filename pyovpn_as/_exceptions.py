@@ -35,3 +35,7 @@ class AccessServerProfileNotFoundError(AccessServerBaseException):
     """
     pass
 
+
+class AccessServerProfileCreateError(AccessServerBaseException):
+    """Raised when an error is encountered when creating a new profile
+    """
