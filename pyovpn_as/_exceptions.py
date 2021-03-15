@@ -29,3 +29,9 @@ class AccessServerProfileExistsError(AccessServerBaseException):
     """
     pass
 
+
+class AccessServerProfileNotFoundError(AccessServerBaseException):
+    """Raised when we try to access a user or group that does not exist
+    """
+    pass
+
