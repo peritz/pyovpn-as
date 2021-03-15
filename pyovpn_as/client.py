@@ -85,7 +85,7 @@ def validate_client_args(
         )
     elif ':' in username:
         raise exceptions.ApiClientConfigurationError(
-            'Username contains ":" character (illegal in basic auth),'
+            'Username contains ":" character (illegal in basic auth), '
             'cannot create client'
         )
     
@@ -100,7 +100,7 @@ def validate_client_args(
         )
     elif ':' in password:
         raise exceptions.ApiClientConfigurationError(
-            'Password contains ":" character (illegal in basic auth),'
+            'Password contains ":" character (illegal in basic auth), '
             'cannot create client'
         )
     else:
