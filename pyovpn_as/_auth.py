@@ -1,5 +1,7 @@
 """This module provides functionality to manage users, their permissions,
    their connection configs, etc
+
+   TODO create wrapper for logging calls
 """
 import logging
 from typing import Any
@@ -49,6 +51,7 @@ def create_new_user(
     username: str,
     password: str=None,
     group: str=None,
+    generate_client: bool=True,
     prop_superuser: bool=None,
     prop_autologin: bool=None,
     prop_deny: bool=None,
@@ -71,6 +74,10 @@ def create_new_user(
         group (str, optional): A default group to assign the user to. If set,
             this user will inherit all options that apply to the given group.
             Will raise an error if group does not exist. Defaults to None.
+        generate_client (bool, optional): Whether or not to generate a
+            certificate and openvpn client configuration file for this user.
+            Users cannot connect to the VPN unless this is set to true (or a
+            cert is generated later for them). Defaults to True. 
         prop_superuser (bool, optional): Whether or not to explicitly make this
             user an administrator. Defaults to None.
         prop_autologin (bool, optional): Whether or not to explicitly allow this
@@ -155,7 +162,12 @@ def create_new_user(
         if password is not None:
             logger.debug(f'Setting password on profile "{username}"')
             client.SetLocalPassword(username, password, '')
-    except ApiClientBaseException as api_err:
+        if generate_client:
+            create_client_for_user(client, username)
+    except (
+        ApiClientBaseException,
+        _exceptions.AccessServerClientExistsError
+    ) as api_err:
         logger.error(
             f'Could not create profile "{username}", '
             'aborting and deleting profile...'
@@ -170,6 +182,7 @@ def create_new_user(
         profile = profile_dict.get(username)
         assert profile is not None
         return profile
+
 
 def create_client_for_user(client: AccessServerClient, user: str) -> None:
     """Creates a new client record for a given user, or raises an error if one
