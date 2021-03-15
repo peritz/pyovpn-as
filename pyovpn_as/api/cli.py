@@ -308,3 +308,14 @@ class AccessServerClient:
             )
         else:
             return
+
+    def AutoGenerateOnBehalfOf(self, user: str) -> None:
+        """Generate a client record for a specific user
+
+        The user passed does not have to exist, and essentially amounts to 
+        generating a certificate for a common name equal to the username passed
+
+        Args:
+            user (str): The user to create the client record for
+        """
+        self._RpcClient.AutoGenerateOnBehalfOf(user)
