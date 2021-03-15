@@ -1,7 +1,5 @@
 """This module provides functionality to manage users, their permissions,
    their connection configs, etc
-
-   TODO create wrapper for logging calls
 """
 import logging
 from typing import Any
@@ -10,10 +8,12 @@ from pyovpn_as.api.cli import AccessServerClient
 from pyovpn_as.api.exceptions import ApiClientBaseException
 
 from . import _exceptions
+from . import utils
 
 
 logger = logging.getLogger(__name__)
 
+@utils.debug_log_call
 def get_user(
     client: AccessServerClient, username: str
 ) -> dict[str, Any]:
@@ -31,7 +31,6 @@ def get_user(
     Returns:
         dict[str, Any]: A dictionary representing the fetched user
     """
-    logger.debug(f'get_user() called ({client}, {username})')
     user_dict = client.UserPropGet(pfilt=[username,])
     profile = user_dict.get(username)
     if profile is None:
@@ -46,6 +45,7 @@ def get_user(
         return profile
 
 
+@utils.debug_log_call
 def create_new_user(
     client: AccessServerClient,
     username: str,
@@ -101,11 +101,6 @@ def create_new_user(
     TODO Add parameter to hide profile in ui
     """
     # 1. Check for existence of user
-    logger.debug(
-        f'create_new_user() called with ({client}, {username}, {password},'
-        f' {group}, {prop_superuser}, {prop_autologin}, {prop_deny}, '
-        f'{prop_pwd_change}, {prop_pwd_strength})'
-    )
     profile_dict = client.UserPropGet(pfilt=[username,])
     if profile_dict.get(username) is not None:
         raise _exceptions.AccessServerProfileExistsError(
@@ -184,6 +179,7 @@ def create_new_user(
         return profile
 
 
+@utils.debug_log_call
 def create_client_for_user(client: AccessServerClient, user: str) -> None:
     """Creates a new client record for a given user, or raises an error if one
        exists
@@ -196,9 +192,6 @@ def create_client_for_user(client: AccessServerClient, user: str) -> None:
         AccessServerClientExistsError: A client record for the given user
             already exists
     """
-    logger.debug(
-        f'create_client_for_user() called with {repr(client)}, {repr(user)}'
-    )
     # 1. Verify we are creating a client for an existing user
     get_user(client, user)
 
