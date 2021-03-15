@@ -21,7 +21,6 @@ def validate_endpoint(url: str) -> bool:
         bool: True if valid, False if not
     """
     parsed = urllib.parse.urlparse(url)
-    print(parsed)
     # Verify https
     if parsed.scheme != 'https':
         return False
