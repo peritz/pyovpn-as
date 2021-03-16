@@ -349,8 +349,8 @@ class AccessServerClient:
 
         Args:
             prof (str, optional): Name of the profile to fetch. Defaults to None
-            plist (list[str], optional): List of profile filter terms. Defaults
-                to None
+            plist (list[str], optional): List of profile filter terms. These
+                are profile entries that we want to extract from the results. Essentially, the columns we select. Defaults to None
 
         Returns:
             dict[str, str]: Configuration found based on search terms, or
