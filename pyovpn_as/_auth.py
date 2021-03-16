@@ -210,3 +210,42 @@ def create_client_for_user(client: AccessServerClient, user: str) -> None:
             f'Creation of client record for "{user}" failed for an unknown'
             ' reason'
         )
+
+@utils.debug_log_call
+def delete_user(
+    client: AccessServerClient,
+    username: str
+) -> None:
+    """Deletes a user from the server
+
+    Args:
+        client (AccessServerClient): Client used to connect to AccessServer
+        username (str): User to delete
+
+    Raises:
+        AccessServerProfileNotFoundError: User we are trying to delete does not
+            exist
+        AccessServerProfileExistsError: username supplied is name of group
+            profile
+    """
+    # 1. Check that the user exists
+    profile_dict = client.UserPropGet(pfilt=[username,])
+    if profile_dict.get(username) is None:
+        raise _exceptions.AccessServerProfileNotFoundError(
+            f'User "{username}" does not exist'
+        )
+    elif profile_dict.get(username)['type'] == 'group':
+        raise _exceptions.AccessServerProfileExistsError(
+            f'Profile "{username}" is a group, not a user'
+        )
+    
+    # 2. Delete the user
+    client.UserPropDelAll(username)
+
+    # 3. Check that the profile is deleted
+    profile_dict = client.UserPropGet(pfilt=[username,])
+    if profile_dict.get(username) is not None:
+        raise _exceptions.AccessServerProfileDeleteError(
+            f'Could not delete profile "{username}" for an unknown reason'
+        )
+    
