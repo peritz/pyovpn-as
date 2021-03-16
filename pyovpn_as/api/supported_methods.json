@@ -127,6 +127,11 @@
         "returns": "str: Access Server Version"
     },
 
+    "LocalAuthEnabled": {
+        "params": [],
+        "returns": "bool: Whether or not Local Authentication is being used/is enabled"
+    },
+
     "SetLocalPassword": {
         "params": [
             {
