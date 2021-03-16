@@ -191,5 +191,26 @@
     "EnumClients": {
         "params": [],
         "returns": "list[str]: A list of client configuration names that have a record in the db. This is the list of common names that can be used to connect to the VPN."
+    },
+
+
+    "ConfigQuery": {
+        "params": [
+            {
+                "name": "prof",
+                "type": "str",
+                "required": true,
+                "null": true,
+                "description": "Profile name to fetch from config DB"
+            },
+            {
+                "name": "pfilt",
+                "type": "list[str]",
+                "required": true,
+                "null": true,
+                "description": "List of profile filter terms"
+            }
+        ],
+        "returns": "dict: Configuration profile specified by the above filter terms. If no filter terms are applied, the active configuration is retrieved"
     }
 }
