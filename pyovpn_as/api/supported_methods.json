@@ -175,7 +175,7 @@
         "returns": "None"
     },
 
-    "GetUserLogin": {
+    "GetUserlogin": {
         "params": [
             {
                 "name": "user",
