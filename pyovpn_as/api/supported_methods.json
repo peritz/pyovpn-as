@@ -194,6 +194,19 @@
         "returns": "None"
     },
 
+    "RevokeCert": {
+        "params": [
+            {
+                "name": "cn",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "Description": "Common name of the certificate to revoke"
+            }
+        ],
+        "returns": null
+    },
+
     "GetUserlogin": {
         "params": [
             {
