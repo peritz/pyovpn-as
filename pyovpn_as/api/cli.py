@@ -317,6 +317,11 @@ class AccessServerClient:
         """
         self._RpcClient.RemoveLocalPassword(user)
 
+    def AutoGenerateClient(self) -> None:
+        """Generate a client record for the authenticated user if none exists
+        """
+        self._RpcClient.AutoGenerateClient()
+
     def AutoGenerateOnBehalfOf(self, user: str) -> None:
         """Generate a client record for a specific user
 
