@@ -320,6 +320,19 @@ class AccessServerClient:
         """
         self._RpcClient.AutoGenerateOnBehalfOf(user)
 
+    def GetUserlogin(self, user: str=None) -> str:
+        """Get a user-locked connection profile for the given user
+
+        Args:
+            user (str, optional): User to get connection profile for. Defaults
+                to None
+
+        Returns:
+            str: the user-locked configuration profile for the given user, or
+                the current authenticated user if None
+        """
+        return self._RpcClient.GetUserLogin(user)
+
     def EnumClients(self) -> list[str]:
         """Fetch the list of client names in the database where a client is a
            common name that can connect to the VPN
