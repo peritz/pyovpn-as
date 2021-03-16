@@ -175,6 +175,19 @@
         "returns": "None"
     },
 
+    "GetUserLogin": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": false,
+                "null": true,
+                "description": "User to get user-locked profile for. If not passed, defaults to the current requesting user"
+            }
+        ],
+        "returns": "User-locked configuration profile"
+    },
+
     "EnumClients": {
         "params": [],
         "returns": "list[str]: A list of client configuration names that have a record in the db. This is the list of common names that can be used to connect to the VPN."
