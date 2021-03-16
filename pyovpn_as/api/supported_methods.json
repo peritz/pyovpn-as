@@ -162,6 +162,19 @@
         "returns": "dict: {'status': bool, 'reason': str} Where the status is whether or not the operation succeeded and 'reason' is why the status is the value that it is."
     },
 
+    "RemoveLocalPassword": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "User whose password we want to remove"
+            }
+        ],
+        "returns": null
+    },
+
     "AutoGenerateOnBehalfOf": {
         "params": [
             {
