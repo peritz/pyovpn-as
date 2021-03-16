@@ -222,4 +222,38 @@ def from_file(filepath: os.PathLike) -> cli.AccessServerClient:
         endpoint, username, password, debug, allow_untrusted
     )
 
-    
+
+@utils.debug_log_call  
+def from_args(
+    endpoint: str,
+    username: str,
+    password: str,
+    debug: bool=False,
+    allow_untrusted: bool=False
+) -> cli.AccessServerClient:
+    """Connect to AccessServer using config specified in arguments
+
+    Args:
+        endpoint (str): Endpoint URL of the Access Server
+            (https://hostname/RPC2/)
+        username (str): Username to authenticate as
+        password (str): Password to authenticate with
+        debug (bool, optional): Log debug information. Defaults to False.
+        allow_untrusted (bool, optional): Allow unverified SSL context and
+            untrusted SSL certs from server. Defaults to False.
+
+    Returns:
+        cli.AccessServerClient
+    """
+    validate_client_args(endpoint, username, password)
+    if not isinstance(debug, bool) or not isinstance(allow_untrusted, bool):
+        raise exceptions.ApiClientConfigurationError(
+            'debug and allow_untrusted must be either true or false'
+        )
+    logging.info(
+        f'Creating client with ({repr(endpoint)}, {repr(username)}, '
+        f'{repr(password)}, {repr(debug)}, {repr(allow_untrusted)})'
+    )
+    return cli.AccessServerClient(
+        endpoint, username, password, debug, allow_untrusted
+    )
