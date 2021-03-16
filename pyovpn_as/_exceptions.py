@@ -39,6 +39,13 @@ class AccessServerProfileNotFoundError(AccessServerBaseException):
 class AccessServerProfileCreateError(AccessServerBaseException):
     """Raised when an error is encountered when creating a new profile
     """
+    pass
+
+
+class AccessServerProfileDeleteError(AccessServerBaseException):
+    """Raised when an unknown error is encountered when deleting a profile
+    """
+    pass
 
 
 class AccessServerClientExistsError(AccessServerBaseException):
