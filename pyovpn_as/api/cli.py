@@ -332,6 +332,15 @@ class AccessServerClient:
             user (str): The user to create the client record for
         """
         self._RpcClient.AutoGenerateOnBehalfOf(user)
+    
+    def RevokeCert(self, cn: str) -> None:
+        """Revoke a client certificate
+
+        Args:
+            cn (str): Common name of the certificate to revoke, usually either
+                <username> or <username>_AUTOLOGIN
+        """
+        self._RpcClient.RevokeCert(cn)
 
     def GetUserlogin(self, user: str=None) -> str:
         """Get a user-locked connection profile for the given user
