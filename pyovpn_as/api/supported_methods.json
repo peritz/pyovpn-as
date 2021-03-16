@@ -175,6 +175,12 @@
         "returns": null
     },
 
+    "AutoGenerateClient": {
+        "params": [],
+        "returns": null,
+        "description": "Generate a client record if none exists for the current user"
+    },
+
     "AutoGenerateOnBehalfOf": {
         "params": [
             {
