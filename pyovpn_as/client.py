@@ -6,6 +6,7 @@ import logging
 import os
 import urllib.parse
 
+from . import utils
 from .api import cli
 from .api import exceptions
 
@@ -115,7 +116,7 @@ def validate_client_args(
         return True
 
 
-
+@utils.debug_log_call
 def from_env() -> cli.AccessServerClient:
     """Gets parameters for Access Server from environment variables
 
@@ -137,7 +138,6 @@ def from_env() -> cli.AccessServerClient:
     Returns:
         cli.AccessServerClient: configured using the above values
     """
-    logging.debug(f'from_env() called')
     endpoint = os.environ.get('PYOVPN_AS_ENDPOINT_URL')
     username = os.environ.get('PYOVPN_AS_USERNAME')
     password = os.environ.get('PYOVPN_AS_PASSWORD')
@@ -175,6 +175,7 @@ def from_env() -> cli.AccessServerClient:
     )
 
 
+@utils.debug_log_call
 def from_file(filepath: os.PathLike) -> cli.AccessServerClient:
     """Retrieve client configuration from file
 
@@ -196,7 +197,6 @@ def from_file(filepath: os.PathLike) -> cli.AccessServerClient:
     Returns:
         cli.AccessServerClient: The client configured using the above options
     """
-    logging.debug(f'from_file() called with ({repr(filepath)})')
     with open(filepath) as config_file:
         config = json.loads(config_file.read())
     
