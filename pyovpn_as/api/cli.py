@@ -231,6 +231,14 @@ class AccessServerClient:
         """
         return self._RpcClient.UserPropProfileCount(tfilt)
 
+    def LocalAuthEnabled(self) -> bool:
+        """Check if local authentication is enabled on the remote server
+
+        Returns:
+            bool: True if Local Authentication is enabled False otherwise
+        """
+        return self._RpcClient.LocalAuthEnabled()
+
     def SetLocalPassword(
         self,
         user: str,
