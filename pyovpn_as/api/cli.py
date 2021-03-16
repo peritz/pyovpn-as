@@ -309,6 +309,14 @@ class AccessServerClient:
         else:
             return
 
+    def RemoveLocalPassword(self, user: str) -> None:
+        """Remove the password from a user when using local auth
+
+        Args:
+            user (str): The user for whom to remove the password
+        """
+        self._RpcClient.RemoveLocalPassword(user)
+
     def AutoGenerateOnBehalfOf(self, user: str) -> None:
         """Generate a client record for a specific user
 
