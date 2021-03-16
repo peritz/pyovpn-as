@@ -341,3 +341,19 @@ class AccessServerClient:
             list[str]: a list of client names
         """
         return self._RpcClient.EnumClients()
+
+    def ConfigQuery(
+        self, prof: str=None, plist: list[str]=None
+    ) -> dict[str, str]:
+        """Fetch the configuration by filtering on the given search terms
+
+        Args:
+            prof (str, optional): Name of the profile to fetch. Defaults to None
+            plist (list[str], optional): List of profile filter terms. Defaults
+                to None
+
+        Returns:
+            dict[str, str]: Configuration found based on search terms, or
+                active config if no search terms defined
+        """
+        return self._RpcClient.ConfigQuery(prof, plist)
