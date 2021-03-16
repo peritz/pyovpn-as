@@ -56,7 +56,8 @@ def create_new_user(
     prop_autologin: bool=None,
     prop_deny: bool=None,
     prop_pwd_change: bool=None,
-    prop_pwd_strength: bool=None
+    prop_pwd_strength: bool=None,
+    prop_autogenerate: bool=None
 ) -> dict[str, Any]:
     """Creates a user with the given parameters
 
@@ -90,6 +91,10 @@ def create_new_user(
         prop_pwd_strength (bool, optional): Whether or not to
             explicitly check the complexity of this user's password when they
             try to change it in the WebUI. Defaults to None.
+        prop_autogenerate (bool, optional): Whether or not to prevent the server
+            from automatically regenerating user connection profiles (client
+            records) when they don't exist (e.g. revoked) on the server.
+            Defaults to None
 
     Raises:
         AccessServerProfileExistsError: username provided already exists as
