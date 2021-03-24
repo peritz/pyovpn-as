@@ -361,7 +361,7 @@ class AccessServerClient:
             str: the user-locked configuration profile for the given user, or
                 the current authenticated user if None
         """
-        return self._RpcClient.GetUserLogin(user)
+        return self._RpcClient.GetUserlogin(user)
 
     def Get1(self, cn: str) -> str:
         """Get a unified connection profile for the given common name
