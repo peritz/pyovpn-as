@@ -350,6 +350,14 @@ class AccessServerClient:
         """
         self._RpcClient.RevokeCert(cn)
 
+    def RevokeUser(self, user: str) -> None:
+        """Revoke all certificates belonging to a given user
+
+        Args:
+            user (str): The user whose certificates we want to revoke
+        """
+        return self._RpcClient.RevokeUser(user)
+
     def GetUserlogin(self, user: str=None) -> str:
         """Get a user-locked connection profile for the given user
 

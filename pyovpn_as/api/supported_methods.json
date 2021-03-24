@@ -225,6 +225,19 @@
         "returns": "User-locked configuration profile"
     },
 
+    "RevokeUser": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "User whose certificates we want to revoke"
+            }
+        ],
+        "returns": null
+    },
+
     "Get1": {
         "params": [
             {
