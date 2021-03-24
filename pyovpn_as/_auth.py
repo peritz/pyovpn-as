@@ -245,7 +245,8 @@ def delete_user(
             f'Profile "{username}" is a group, not a user'
         )
     
-    # 2. Delete the user
+    # 2. Delete the user and revoke certs
+    client.RevokeUser(username)
     client.UserPropDelAll(username)
 
     # 3. Check that the profile is deleted
