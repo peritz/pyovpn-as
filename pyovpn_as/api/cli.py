@@ -363,7 +363,7 @@ class AccessServerClient:
         """
         return self._RpcClient.GetUserlogin(user)
 
-    def Get1(self, cn: str) -> str:
+    def Get1(self, cn: str) -> list[str]:
         """Get a unified connection profile for the given common name
 
         This connection profile can be written to a file for import into most
@@ -374,8 +374,8 @@ class AccessServerClient:
             cn (str): Common name of the certificate to fetch for the profile
 
         Returns:
-            str: The unified connection profile for the given common name or
-                None if it doesn't exist
+            list[str]: The unified connection profile and name of the file for 
+                the given common name or None if it doesn't exist
         """
         return self._RpcClient.Get1(cn)
 
