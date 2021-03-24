@@ -2,14 +2,14 @@
     "UserPropProfileMultiGet": {
         "params": [
             {
-                "name": "tfilt",
+                "name": "pfilt",
                 "type": "list[str]",
                 "required": true,
                 "null": true,
                 "description": "Filter for profiles on type"
             },
             {
-                "name": "pfilt",
+                "name": "tfilt",
                 "type": "list[str]",
                 "required": false,
                 "null": true,
