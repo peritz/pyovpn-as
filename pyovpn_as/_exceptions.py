@@ -58,3 +58,9 @@ class AccessServerClientCreateError(AccessServerBaseException):
     """Raised when an error is encountered when creating a new client record
     """
     pass
+
+
+class PasswordGenerationComplexityTimeout(Exception):
+    """Raised when we have been unable to generate a suitably complex password
+    """
+    pass
