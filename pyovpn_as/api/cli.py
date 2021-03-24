@@ -353,6 +353,19 @@ class AccessServerClient:
     def GetUserlogin(self, user: str=None) -> str:
         """Get a user-locked connection profile for the given user
 
+        This is equivalent to Get1(user) except that if the configuration does not exist on the server it will be created.
+
+        E.g.
+
+            >>> print(client.Get1('doesnotexist'))
+            None
+            >>> print(client.GetUserlogin('doesnotexist'))
+            # Automatically generated OpenVPN client config file
+            . . .
+            >>> print(client.Get1('doesnotexist'))
+            # Automatically generated OpenVPN client config file
+            . . .
+
         Args:
             user (str, optional): User to get connection profile for. Defaults
                 to None
