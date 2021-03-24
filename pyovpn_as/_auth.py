@@ -138,7 +138,8 @@ def create_new_user(
         'prop_autologin',
         'prop_deny',
         'prop_pwd_change',
-        'prop_pwd_strength'
+        'prop_pwd_strength',
+        'prop_autogenerate'
     )]
     for p_name, p_val in params:
         if p_val is None:
