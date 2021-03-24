@@ -75,6 +75,12 @@ class ApiClientConfigurationError(ApiClientBaseException):
     """
     pass
 
+class ApiClientUsernameNotFoundError(ApiClientBaseException):
+    """Raised when the Fault Code is 9000 and the Fault String is
+       "XMLRPCRelay: AUTHRPC_EXCEPT: CertDB: Username 'x' not found"
+    """
+    pass
+
 # -----------------
 # ---- Methods ----
 # -----------------
@@ -119,6 +125,15 @@ def translate_fault(err: Exception) -> None:
         err.faultString == 'XMLRPCRelay: XMLRPC: function not found':
         return ApiClientFunctionNotFoundError(
             'Function not found on given server'
+        )
+    elif err.faultCode == 9000 and \
+        err.faultString.startswith(
+            'XMLRPCRelay: AUTHRPC_EXCEPT: CertDB: Username'
+        ) and err.faultString.endswith(
+            'not found'
+        ):
+        return ApiClientUsernameNotFoundError(
+            'Username could not be found on the server'
         )
     else:
         return ApiClientUnexpectedError(
