@@ -206,7 +206,7 @@
                 "type": "str",
                 "required": true,
                 "null": false,
-                "Description": "Common name of the certificate to revoke"
+                "description": "Common name of the certificate to revoke"
             }
         ],
         "returns": null
@@ -223,6 +223,26 @@
             }
         ],
         "returns": "User-locked configuration profile"
+    },
+
+    "Get1": {
+        "params": [
+            {
+                "name": "cn",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Common name of the unified certificate to get"
+            },
+            {
+                "name": "alt",
+                "type": "str",
+                "required": false,
+                "null": true,
+                "description": "This parameter is not yet supported, and is not documented well enough to understand its purpose."
+            }
+        ],
+        "returns": "str: the client connection configuration for an OpenVPN client with all certificates and private keys embedded. This will work for most OpenVPN clients"
     },
 
     "EnumClients": {
