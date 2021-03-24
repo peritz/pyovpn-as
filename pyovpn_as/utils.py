@@ -14,4 +14,5 @@ def debug_log_call(f):
             f'{f.__name__}() called with *args={repr(args)}, '
             f'**kwargs={repr(kwargs)}'
         )
+        return f(*args, **kwargs)
     return wrapper
