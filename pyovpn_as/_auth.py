@@ -288,3 +288,27 @@ def get_user_login_ovpn_config(
         )
     else:
         return config[1]
+
+
+@utils.debug_log_call
+def revoke_user_certificates(
+    client: AccessServerClient,
+    username: str
+) -> None:
+    """Revoke all certificates for the given user
+
+    Args:
+        client (AccessServerClient): Client used to connect to AccessServer
+        username (str): User whose certificates we want to revoke
+
+    Raises:
+        AccessServerProfileNotFoundError: User does not have a user/pass login
+            connection profile configured or user does not exist.
+        AccessServerProfileExistsError: Username provided is the name of a
+            group, not a user
+    """
+    # Validate user exists
+    get_user(client, username)
+
+    # Revoke all certs
+    client.RevokeUser(username)
