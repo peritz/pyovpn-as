@@ -253,4 +253,38 @@ def delete_user(
         raise _exceptions.AccessServerProfileDeleteError(
             f'Could not delete profile "{username}" for an unknown reason'
         )
-    
+
+
+@utils.debug_log_call
+def get_user_login_ovpn_config(
+    client: AccessServerClient,
+    username: str
+) -> str:
+    """Fetches the .ovpn configuration for 
+
+    Args:
+        client (AccessServerClient): Client used to connect to AccessServer
+        username (str): Username to fetch configuration for
+
+    Raises:
+        AccessServerProfileNotFoundError: User does not have a user/pass login
+            connection profile configured or user does not exist.
+        AccessServerProfileExistsError: Username provided is the name of a
+            group, not a user
+
+    Returns:
+        str: The unified connection profile for the given user requiring an
+            interactive login
+    """
+    # Validate user exists before fetching their config
+    get_user(client, username)
+
+    # Use Get1 to prevent config being created in case of not existing
+    config = client.Get1(username)
+    if config is None:
+        raise _exceptions.AccessServerProfileNotFoundError(
+            f'Connection profile for user "{username}" could not be found on '
+            'the server.'
+        )
+    else:
+        return config[1]
