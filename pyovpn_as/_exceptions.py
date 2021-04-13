@@ -64,3 +64,10 @@ class PasswordGenerationComplexityTimeout(Exception):
     """Raised when we have been unable to generate a suitably complex password
     """
     pass
+
+
+class AccessServerConfigError(AccessServerBaseException):
+    """Raised when the configuration on the server does not permit a given
+       operation to be run
+    """
+    pass
