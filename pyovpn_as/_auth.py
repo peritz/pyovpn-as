@@ -100,6 +100,7 @@ def create_new_user(
     Raises:
         AccessServerProfileExistsError: username provided already exists as
             either a user or a group
+        AccessServerConfigError: LocalAuth is not enabled on the server
         ApiClientPasswordComplexityError: Password is not complex enough
 
     Returns:
@@ -107,6 +108,14 @@ def create_new_user(
 
     TODO Add parameter to hide profile in ui
     """
+    # We're going to be creating a user with a local password
+    # Local Auth must therefore be enabled
+    if not client.LocalAuthEnabled():
+        raise _exceptions.AccessServerConfigError(
+            'Creating a user with local password requires local auth to be '
+            'enabled on the server'
+        )
+
     # 1. Check for existence of user
     profile_dict = client.UserPropGet(pfilt=[username,])
     if profile_dict.get(username) is not None:
