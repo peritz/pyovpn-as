@@ -132,7 +132,7 @@ def create_new_user(
     # 3. Collect other parameters
     param_dict = {}
     params = [
-        (p, vars()[p]) for p in (
+        (p, locals().get(p)) for p in (
         'prop_superuser',
         'prop_autologin',
         'prop_deny',
