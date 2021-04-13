@@ -108,6 +108,7 @@ def create_new_user(
         dict[str, Any]: A dictionary representing the user just created
 
     TODO Add parameter to hide profile in ui
+    TODO explicitly define default behaviour of server in docstring
     """
     # We're going to be creating a user with a local password
     # Local Auth must therefore be enabled
