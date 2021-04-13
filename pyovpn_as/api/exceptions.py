@@ -3,7 +3,7 @@
 """
 import xmlrpc.client
 
-class ApiClientBaseException(BaseException):
+class ApiClientBaseException(Exception):
     """Used as a base exception for other errors in the API conversation
        that are not XMLRPC Faults, e.g. bad password in SetLocalPassword
     """

@@ -18,7 +18,7 @@ let us set the property without a second thought.
 """
 
 
-class AccessServerBaseException(BaseException):
+class AccessServerBaseException(Exception):
     """Base exception for all exceptions in this module
     """
     pass
