@@ -111,7 +111,6 @@ def create_new_user(
         raise _exceptions.AccessServerProfileExistsError(
             f'Profile for "{username}" already exists on the server'
         )
-    logger.debug(f'Got user "{username}"')
     
     # 2. If there is a group specified, check that it exists
     if group is not None:
