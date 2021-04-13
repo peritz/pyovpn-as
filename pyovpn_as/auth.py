@@ -6,9 +6,9 @@ from typing import Any
 import hashlib
 
 from pyovpn_as.api.cli import AccessServerClient
-from pyovpn_as.api.exceptions import ApiClientBaseException, ApiClientParameterError
+import pyovpn_as.api.exceptions
 
-from . import _exceptions
+from . import exceptions
 from . import utils
 
 
@@ -35,11 +35,11 @@ def get_user(
     user_dict = client.UserPropGet(pfilt=[username,])
     profile = user_dict.get(username)
     if profile is None:
-        raise _exceptions.AccessServerProfileNotFoundError(
+        raise exceptions.AccessServerProfileNotFoundError(
             f'Could not find profile for "{username}"'
         )
     elif profile.get('type') == 'group':
-        raise _exceptions.AccessServerProfileExistsError(
+        raise exceptions.AccessServerProfileExistsError(
             f'"{username}" is the name of a group, not a user'
         )
     else:
@@ -113,7 +113,7 @@ def create_new_user(
     # We're going to be creating a user with a local password
     # Local Auth must therefore be enabled
     if not client.LocalAuthEnabled():
-        raise _exceptions.AccessServerConfigError(
+        raise exceptions.AccessServerConfigError(
             'Creating a user with local password requires local auth to be '
             'enabled on the server'
         )
@@ -121,7 +121,7 @@ def create_new_user(
     # 1. Check for existence of user
     profile_dict = client.UserPropGet(pfilt=[username,])
     if profile_dict.get(username) is not None:
-        raise _exceptions.AccessServerProfileExistsError(
+        raise exceptions.AccessServerProfileExistsError(
             f'Profile for "{username}" already exists on the server'
         )
     
@@ -133,11 +133,11 @@ def create_new_user(
             )
         profile_dict = client.UserPropGet(pfilt=[group,])
         if profile_dict.get(group) is None:
-            raise _exceptions.AccessServerProfileNotFoundError(
+            raise exceptions.AccessServerProfileNotFoundError(
                 f'Group "{group}" does not exist'
             )
         if profile_dict.get(group).get('type') != 'group':
-            raise _exceptions.AccessServerProfileExistsError(
+            raise exceptions.AccessServerProfileExistsError(
                 f'Profile "{group}" is not a group'
             )
         logger.debug(f'Got group "{group}"')
@@ -181,7 +181,7 @@ def create_new_user(
                 client.SetLocalPassword(
                     username, password, ''
                 )
-            except ApiClientParameterError as api_err:
+            except pyovpn_as.api.exceptions.ApiClientParameterError as api_err:
                 logger.warning(
                     'Server does not use SetLocalPassword, setting password '
                     'manually using SHA256 hash'
@@ -196,15 +196,15 @@ def create_new_user(
         if generate_client:
             create_client_for_user(client, username)
     except (
-        ApiClientBaseException,
-        _exceptions.AccessServerClientExistsError
+        pyovpn_as.api.exceptions.ApiClientBaseException,
+        exceptions.AccessServerClientExistsError
     ) as api_err:
         logger.error(
             f'Could not create profile "{username}", '
             'aborting and deleting profile...'
         )
         client.UserPropDelAll(username)
-        raise _exceptions.AccessServerProfileCreateError(
+        raise exceptions.AccessServerProfileCreateError(
             'Encountered an issue when setting properties on new user'
         ) from api_err
     else:
@@ -234,7 +234,7 @@ def create_client_for_user(client: AccessServerClient, user: str) -> None:
     # 2. Check if there is already an existing client
     existing_clients = client.EnumClients()
     if user in existing_clients:
-        raise _exceptions.AccessServerClientExistsError(
+        raise exceptions.AccessServerClientExistsError(
             f'Client record already exists for "{user}"'
         )
     
@@ -242,7 +242,7 @@ def create_client_for_user(client: AccessServerClient, user: str) -> None:
     client.AutoGenerateOnBehalfOf(user)
     new_existing_clients = client.EnumClients()
     if user not in new_existing_clients:
-        raise _exceptions.AccessServerClientCreateError(
+        raise exceptions.AccessServerClientCreateError(
             f'Creation of client record for "{user}" failed for an unknown'
             ' reason'
         )
@@ -267,11 +267,11 @@ def delete_user(
     # 1. Check that the user exists
     profile_dict = client.UserPropGet(pfilt=[username,])
     if profile_dict.get(username) is None:
-        raise _exceptions.AccessServerProfileNotFoundError(
+        raise exceptions.AccessServerProfileNotFoundError(
             f'User "{username}" does not exist'
         )
     elif profile_dict.get(username)['type'] == 'group':
-        raise _exceptions.AccessServerProfileExistsError(
+        raise exceptions.AccessServerProfileExistsError(
             f'Profile "{username}" is a group, not a user'
         )
     
@@ -282,7 +282,7 @@ def delete_user(
     # 3. Check that the profile is deleted
     profile_dict = client.UserPropGet(pfilt=[username,])
     if profile_dict.get(username) is not None:
-        raise _exceptions.AccessServerProfileDeleteError(
+        raise exceptions.AccessServerProfileDeleteError(
             f'Could not delete profile "{username}" for an unknown reason'
         )
 
@@ -314,7 +314,7 @@ def get_user_login_ovpn_config(
     # Use Get1 to prevent config being created in case of not existing
     config = client.Get1(username)
     if config is None:
-        raise _exceptions.AccessServerProfileNotFoundError(
+        raise exceptions.AccessServerProfileNotFoundError(
             f'Connection profile for user "{username}" could not be found on '
             'the server.'
         )
