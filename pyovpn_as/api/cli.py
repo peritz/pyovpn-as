@@ -309,7 +309,7 @@ class AccessServerClient:
             raise ApiClientPasswordIncorrectError('Failed to enter the '
                 f'correct current password for user "{user}"')
 
-        elif not return_val['status'] == False:
+        elif not return_val['status']:
             raise ApiClientPasswordResetError(
                 'Something unexpected happened while setting password for '
                 f'user "{user}": {return_val["reason"]}'
