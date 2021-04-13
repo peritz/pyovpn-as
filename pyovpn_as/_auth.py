@@ -156,6 +156,8 @@ def create_new_user(
     # 4. Try to create the user and delete profile if any step fails
     logger.info(f'Creating user "{username}"')
     try:
+        # Create User
+        client.UserPropPut(username, "type", "user_connect")
         for key, value in param_dict.items():
             logger.debug(f'Setting property "{key}" on profile "{username}"')
             client.UserPropPut(username, key, value)
