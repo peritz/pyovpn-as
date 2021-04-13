@@ -100,6 +100,7 @@ def create_new_user(
     Raises:
         AccessServerProfileExistsError: username provided already exists as
             either a user or a group
+        AccessServerProfileNotFoundError: group given does not exist
         AccessServerConfigError: LocalAuth is not enabled on the server
         ApiClientPasswordComplexityError: Password is not complex enough
 
