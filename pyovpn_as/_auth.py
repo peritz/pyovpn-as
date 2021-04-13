@@ -3,9 +3,10 @@
 """
 import logging
 from typing import Any
+import hashlib
 
 from pyovpn_as.api.cli import AccessServerClient
-from pyovpn_as.api.exceptions import ApiClientBaseException
+from pyovpn_as.api.exceptions import ApiClientBaseException, ApiClientParameterError
 
 from . import _exceptions
 from . import utils
@@ -99,6 +100,7 @@ def create_new_user(
     Raises:
         AccessServerProfileExistsError: username provided already exists as
             either a user or a group
+        ApiClientPasswordComplexityError: Password is not complex enough
 
     Returns:
         dict[str, Any]: A dictionary representing the user just created
@@ -163,7 +165,23 @@ def create_new_user(
             client.UserPropPut(username, key, value)
         if password is not None:
             logger.debug(f'Setting password on profile "{username}"')
-            client.SetLocalPassword(username, password, '')
+            try:
+                # Password complexity checked here
+                client.SetLocalPassword(
+                    username, password, ''
+                )
+            except ApiClientParameterError as api_err:
+                logger.warning(
+                    'Server does not use SetLocalPassword, setting password '
+                    'manually using SHA256 hash'
+                )
+                # Password complexity checks need to be done manually
+                if AccessServerClient.is_password_complex(password):
+                    sha = hashlib.sha256(password.encode())
+                    client.UserPropPut(
+                        username, 'pvt_password_digest',
+                        sha.hexdigest()
+                    )
         if generate_client:
             create_client_for_user(client, username)
     except (
