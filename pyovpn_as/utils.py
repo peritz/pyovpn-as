@@ -4,6 +4,7 @@ import functools
 import logging
 import secrets
 import string
+from typing import Any
 
 from pyovpn_as.api.cli import AccessServerClient
 
@@ -11,14 +12,31 @@ from . import exceptions
 
 logger = logging.getLogger(__name__)
 
-def debug_log_call(f):
+def debug_log_call(f, redact: list[Any]=['password',]):
     """Logs the function called and the arguments passed at the debug level
+
+    Args:
+        redact (list[Any], optional): Which arguments to redact from the log.
+            The kwarg 'password', if it is passed, will always be redacted
     """
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
+        my_args = list(args)
+        my_kwargs = dict(kwargs)
+        # Redact sensitive arguments
+        if 'password' not in redact:
+            redact.append('password')
+        for redact_key in redact:
+            if redact_key in my_kwargs:
+                my_kwargs[redact_key] = 'REDACTED'
+                assert my_kwargs != kwargs
+            if isinstance(redact_key, int) \
+                and redact_key in range(len(my_args)):
+                my_args[redact_key] = 'REDACTED'
+                assert my_args != args
         logger.debug(
-            f'{f.__name__}() called with *args={repr(args)}, '
-            f'**kwargs={repr(kwargs)}'
+            f'{f.__name__}() called with *args={repr(my_args)}, '
+            f'**kwargs={repr(my_kwargs)}'
         )
         return f(*args, **kwargs)
     return wrapper

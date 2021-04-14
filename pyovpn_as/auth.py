@@ -46,7 +46,7 @@ def get_user(
         return profile
 
 
-@utils.debug_log_call
+@utils.debug_log_call(redact=[2, 'password'])
 def create_new_user(
     client: AccessServerClient,
     username: str,
@@ -164,7 +164,6 @@ def create_new_user(
             param_dict[p_name] = 'true'
         else:
             param_dict[p_name] = 'false'
-    logger.debug(f'param_dict = {param_dict}')
     
     # 4. Try to create the user and delete profile if any step fails
     logger.info(f'Creating user "{username}"')

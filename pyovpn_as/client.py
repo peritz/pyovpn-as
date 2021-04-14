@@ -167,7 +167,7 @@ def from_env() -> cli.AccessServerClient:
 
     logging.info(
         f'Creating client with ({repr(endpoint)}, {repr(username)}, '
-        f'{repr(password)}, {repr(debug)}, {repr(allow_untrusted)})'
+        f'REDACTED, {repr(debug)}, {repr(allow_untrusted)})'
     )
     return cli.AccessServerClient(
         endpoint, username, password,
@@ -216,14 +216,14 @@ def from_file(filepath: os.PathLike) -> cli.AccessServerClient:
     
     logging.info(
         f'Creating client with ({repr(endpoint)}, {repr(username)}, '
-        f'{repr(password)}, {repr(debug)}, {repr(allow_untrusted)})'
+        f'REDACTED, {repr(debug)}, {repr(allow_untrusted)})'
     )
     return cli.AccessServerClient(
         endpoint, username, password, debug, allow_untrusted
     )
 
 
-@utils.debug_log_call  
+@utils.debug_log_call(redact=[2, 'password'])
 def from_args(
     endpoint: str,
     username: str,
@@ -252,7 +252,7 @@ def from_args(
         )
     logging.info(
         f'Creating client with ({repr(endpoint)}, {repr(username)}, '
-        f'{repr(password)}, {repr(debug)}, {repr(allow_untrusted)})'
+        f'REDACTED, {repr(debug)}, {repr(allow_untrusted)})'
     )
     return cli.AccessServerClient(
         endpoint, username, password, debug, allow_untrusted
