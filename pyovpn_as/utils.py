@@ -7,7 +7,7 @@ import string
 
 from pyovpn_as.api.cli import AccessServerClient
 
-from . import _exceptions
+from . import exceptions
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ def generate_random_password(length: int=16, retries: int=10) -> str:
     )
     while not complex:
         if tried >= retries:
-            raise _exceptions.PasswordGenerationComplexityTimeout(
+            raise exceptions.PasswordGenerationComplexityTimeout(
                 f'Could not find a suitably complex password in {retries}'
                 ' attempts'
             )
