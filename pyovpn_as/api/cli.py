@@ -427,7 +427,7 @@ class AccessServerClient:
 
     def DisconnectUser(
         self,
-        user: list[str],
+        user: str,
         restart: bool=False,
         reason: str=None,
         client_reason: str=None,
@@ -436,7 +436,7 @@ class AccessServerClient:
         """Disconnect a list of users from the VPN
 
         Args:
-            user (list[str]): The list of users to disconnect from the VPN
+            user (str): The list of users to disconnect from the VPN
             restart (bool, optional): Whether or not to restart the client as opposed to just halting them. Defaults to False.
             reason (str, optional): The reason logged on the server for the disconnection. Defaults to None.
             client_reason (str, optional): The reason sent to the client for disconnection. Defaults to None.
@@ -446,5 +446,5 @@ class AccessServerClient:
             int: Exit code of the operation, 0 is success.
         """
         return self._RpcClient.DisconnectUsers(
-            user, restart, reason, client_reason, psid
+            [user,], restart, reason, client_reason, psid
         )
