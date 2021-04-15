@@ -424,3 +424,27 @@ class AccessServerClient:
                 active config if no search terms defined
         """
         return self._RpcClient.ConfigQuery(prof, plist)
+
+    def DisconnectUser(
+        self,
+        user: list[str],
+        restart: bool=False,
+        reason: str=None,
+        client_reason: str=None,
+        psid: bool=False
+    ) -> int:
+        """Disconnect a list of users from the VPN
+
+        Args:
+            user (list[str]): The list of users to disconnect from the VPN
+            restart (bool, optional): Whether or not to restart the client as opposed to just halting them. Defaults to False.
+            reason (str, optional): The reason logged on the server for the disconnection. Defaults to None.
+            client_reason (str, optional): The reason sent to the client for disconnection. Defaults to None.
+            psid (bool, optional): Whether or not to preserve the most recently used SessionID. Use this in combination with restart to invite the client to reconnect with the same Session ID. Defaults to False.
+
+        Returns:
+            int: Exit code of the operation, 0 is success.
+        """
+        return self._RpcClient.DisconnectUser(
+            user, restart, reason, client_reason, psid
+        )

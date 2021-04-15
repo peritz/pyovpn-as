@@ -282,5 +282,48 @@
             }
         ],
         "returns": "dict: Configuration profile specified by the above filter terms. If no filter terms are applied, the active configuration is retrieved"
+    },
+
+    "DisconnectUser": {
+        "params": [
+            {
+                "name": "user",
+                "type": "list[str]",
+                "required": true,
+                "null": false,
+                "default": [],
+                "description": "List of usernames to disconnect from the server"
+            },
+            {
+                "name": "restart",
+                "type": "bool",
+                "required": false,
+                "null": true,
+                "default": false,
+                "description": "Whether or not to just send a restart signal to restart the client or to just halt the client. Behvaiour when null not known"
+            },
+            {
+                "name": "reason",
+                "type": "str",
+                "required": false,
+                "null": true,
+                "description": "Reason for disconnection which is logged on the server"
+            },
+            {
+                "name": "client_reason",
+                "type": "str",
+                "required": false,
+                "null": true,
+                "description": "Reason for disconnection which is sent to the client"
+            },
+            {
+                "name": "psid",
+                "type": "bool",
+                "required": false,
+                "null": true,
+                "description": "Preserves the most recently used Session ID for this user so that they can immediately reconnect without renegotiating a session ID. Use this with `restart` to invite users to reconnect with the same session ID"
+            }
+        ],
+        "returns": "int: The exit code of the operation. 0 is a success."
     }
 }
