@@ -14,7 +14,7 @@ from . import utils
 
 logger = logging.getLogger(__name__)
 
-@utils.debug_log_call
+@utils.debug_log_call()
 def get_user(
     client: AccessServerClient, username: str
 ) -> dict[str, Any]:
@@ -214,7 +214,7 @@ def create_new_user(
         return profile
 
 
-@utils.debug_log_call
+@utils.debug_log_call()
 def create_client_for_user(client: AccessServerClient, user: str) -> None:
     """Creates a new client record for a given user, or raises an error if one
        exists
@@ -246,7 +246,7 @@ def create_client_for_user(client: AccessServerClient, user: str) -> None:
             ' reason'
         )
 
-@utils.debug_log_call
+@utils.debug_log_call()
 def delete_user(
     client: AccessServerClient,
     username: str
@@ -286,7 +286,7 @@ def delete_user(
         )
 
 
-@utils.debug_log_call
+@utils.debug_log_call()
 def get_user_login_ovpn_config(
     client: AccessServerClient,
     username: str
@@ -321,7 +321,7 @@ def get_user_login_ovpn_config(
         return config[1]
 
 
-@utils.debug_log_call
+@utils.debug_log_call()
 def revoke_user_certificates(
     client: AccessServerClient,
     username: str

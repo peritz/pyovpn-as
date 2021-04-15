@@ -116,7 +116,7 @@ def validate_client_args(
         return True
 
 
-@utils.debug_log_call
+@utils.debug_log_call()
 def from_env() -> cli.AccessServerClient:
     """Gets parameters for Access Server from environment variables
 
@@ -175,7 +175,7 @@ def from_env() -> cli.AccessServerClient:
     )
 
 
-@utils.debug_log_call
+@utils.debug_log_call()
 def from_file(filepath: os.PathLike) -> cli.AccessServerClient:
     """Retrieve client configuration from file
 
