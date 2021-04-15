@@ -121,12 +121,14 @@ def from_env() -> cli.AccessServerClient:
     """Gets parameters for Access Server from environment variables
 
     The environment variables we are looking for here are:
+
     * `PYOVPN_AS_ENDPOINT_URL` - The endpoint of the Access Server API
     * `PYOVPN_AS_USERNAME` - Username to authenticate
     * `PYOVPN_AS_PASSWORD` - Password to authenticate
 
     The below environment variables are optional, and may be set to either
     "true" or "false"
+    
     * `PYOVPN_AS_DEBUG` - Are we in debug mode, defaults to false
     * `PYOVPN_AS_ALLOW_UNTRUSTED` - Allow untrusted/unverified SSL context from
         Access Server, defaults to false
