@@ -324,6 +324,6 @@
                 "description": "Preserves the most recently used Session ID for this user so that they can immediately reconnect without renegotiating a session ID. Use this with `restart` to invite users to reconnect with the same session ID"
             }
         ],
-        "returns": "int: The exit code of the operation. 0 is a success."
+        "returns": "int: The number of users that were disconnected"
     }
 }

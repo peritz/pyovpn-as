@@ -443,7 +443,7 @@ class AccessServerClient:
             psid (bool, optional): Whether or not to preserve the most recently used SessionID. Use this in combination with restart to invite the client to reconnect with the same Session ID. Defaults to False.
 
         Returns:
-            int: Exit code of the operation, 0 is success.
+            int: The number of users kicked, though this should just be 1 or 0
         """
         return self._RpcClient.DisconnectUsers(
             [user,], restart, reason, client_reason, psid
