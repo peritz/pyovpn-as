@@ -284,7 +284,7 @@
         "returns": "dict: Configuration profile specified by the above filter terms. If no filter terms are applied, the active configuration is retrieved"
     },
 
-    "DisconnectUser": {
+    "DisconnectUsers": {
         "params": [
             {
                 "name": "user",

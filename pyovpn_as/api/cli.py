@@ -445,6 +445,6 @@ class AccessServerClient:
         Returns:
             int: Exit code of the operation, 0 is success.
         """
-        return self._RpcClient.DisconnectUser(
+        return self._RpcClient.DisconnectUsers(
             user, restart, reason, client_reason, psid
         )
