@@ -1,11 +1,11 @@
 """Contains the RPC client that will handle low-level XML-RPC API calls to the
 OpenVPN Access Server.
 """
-import base64
 import builtins
 import json
 import pathlib
 import ssl
+import urllib.parse
 import xmlrpc.client
 from typing import Any
 
@@ -231,12 +231,13 @@ class RpcClient(object):
 
         self._debug = kwargs.get('debug', False)
         self._allow_unsupported= kwargs.get('allow_unsupported', False)
-        
+
         auth_string = f'{username}:{password}'
-        auth_base64 = base64.urlsafe_b64encode(
-            auth_string.encode('utf-8')
+        parsed_endpoint = urllib.parse.urlparse(endpoint)
+        parsed_endpoint = parsed_endpoint._replace(
+            netloc=f'{auth_string}@{parsed_endpoint.netloc}'
         )
-        auth_string = f'Basic {auth_base64.decode()}'
+        new_endpoint = urllib.parse.urlunparse(parsed_endpoint)
 
         if kwargs.get('allow_untrusted', False):
             # Allows untrusted certificates
@@ -246,13 +247,10 @@ class RpcClient(object):
             ssl_context = None
         
         self._serv_proxy = xmlrpc.client.ServerProxy(
-            endpoint,
+            new_endpoint,
             allow_none=True,    # Needs set to allow for sending <nil/>
             verbose=self._debug,
-            context=ssl_context,
-            headers=[
-                ('Authorization', auth_string)
-            ]
+            context=ssl_context
         )
         
         # Try to connect to see if we can reach the server
