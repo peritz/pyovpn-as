@@ -1,5 +1,4 @@
-"""Contains the class which represents a profile on the server. This class is
-rarely used directly and is rather subclassed into the User and Group classes.
+"""Contains the classes which represents profiles on the server.
 """
 from typing import Any
 from . import exceptions
@@ -8,12 +7,20 @@ class Profile:
     """Represents a profile on the OpenVPN Access Server and provides a logical
     layer to extract meaning from the properties set on the profiles.
 
-    The profile doesn't have to exist on the server for this class to be instantiated, and can be passed as an argument to functions manipulating users, groups, and profiles.
+    The profile doesn't have to exist on the server for this class to be 
+    instantiated, and can be passed as an argument to functions manipulating 
+    users, groups, and profiles.
+
+    This class exists primarily as a superclass to User and Group
 
     Args:
         **attrs (dict[str, Any]): The dictionary containing the attributes for a
             profile. This can be fetched from the server with RemoteSacli
             UserPropGet
+
+    Attributes:
+        _attrs (dict[str, Any]): The dictionary containing the attributes for a
+            profile provided at ``__init__``
     """
     def __init__(self, **attrs):
         for key in attrs:
