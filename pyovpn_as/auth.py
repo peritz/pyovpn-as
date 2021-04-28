@@ -243,7 +243,8 @@ def create_client_for_user(client: AccessServerClient, user: str) -> None:
     if user not in new_existing_clients:
         raise exceptions.AccessServerClientCreateError(
             f'Creation of client record for "{user}" failed for an unknown'
-            ' reason'
+            ' reason. New client not present on server despite no returned '
+            'error'
         )
 
 @utils.debug_log_call()
