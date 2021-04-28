@@ -101,9 +101,14 @@ class Profile:
     @property
     def is_group(self) -> bool:
         """bool: Whether or not the profile represents a group. True when the 
-        ``type`` property is equal to 'group'
+        ``group_declare`` property is equal to true
         """
-        return self._attrs.get('type') == 'group'
+        prop = self._attrs.get('group_declare', '')
+        if not isinstance(prop, str):
+            raise exceptions.AccessServerProfileIntegrityError(
+                f'Type of group_declare must be str, not a {type(prop)}'
+            )
+        return prop.lower() == 'true'
 
 
     @property
