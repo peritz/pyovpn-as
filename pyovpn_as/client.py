@@ -14,6 +14,66 @@ from .api import exceptions
 logger = logging.getLogger(__name__)
 
 
+class AccessServerManagementClient:
+    """A management client used to handle higher-level functions on the
+    AccessServer
+    
+    This class doesn't represent anything on the server in the same way that
+    the RemoteSacli and RpcClient classes do. This class encapsulates services
+    that the SDK can manage and interact with, providing high-level functions
+    to manage users, groups, clients, configs etc by adding a layer of
+    abstraction above the properties of these profiles.
+
+    One example to draw upon is the property of a profile ``prop_deny``.
+    Whenever this property is set to ``True``, it means that the user/group is
+    banned. In this layer, therefore, we apply this logic, and provide a method
+    to ban a user/group by applying this property.
+
+    You shouldn't instantiate this class directly as it will not perform
+    validation of the arguments given. Use one of the ``from_*`` functions
+    provided in this module.
+
+    Args:
+        endpoint (str): The endpoint to connect to 
+            (https://<hostname>:<port>/RPC2/)
+        username (str): The username to connect with
+        password (str): The password to connect with
+        **kwargs:
+            debug (bool, optional): Whether or not to provide verbose output
+                from RPC connections. Default is False.
+            allow_untrusted (bool, optional): Whether or not to allow SSL
+                contexts that are not trusted by the host system.
+    """
+    def __init__(
+        self, endpoint: str, username: str, password: str, *args, **kwargs
+    ):
+        # These values are set as private rather than instantiating them as a
+        # RemoteSacli object so that we can set and unset them if needs be in 
+        # future
+        self.__endpoint = endpoint
+        self.__username = username
+        self.__password = password
+        self.__debug = kwargs.get('debug', False)
+        self.__allow_untrusted = kwargs.get('allow_untrusted', False)
+    
+
+    def _get_sacli(self) -> cli.RemoteSacli:
+        """Create and return a RemoteSacli object which can be used to make
+        requests.
+
+        Returns:
+            cli.RemoteSacli: The object representing the sacli tool on the
+                server
+        """
+        return cli.RemoteSacli(
+            self.__endpoint,
+            self.__username,
+            self.__password,
+            self.__debug,
+            self.__allow_untrusted
+        )
+
+
 def validate_endpoint(url: str) -> bool:
     """Validates that a given URL is a (syntactically) valid endpoint URI for
        an AccessServer XML-RPC interface
