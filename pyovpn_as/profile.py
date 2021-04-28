@@ -21,7 +21,31 @@ class Profile:
     Attributes:
         _attrs (dict[str, Any]): The dictionary containing the attributes for a
             profile provided at ``__init__``
+        USER_CONNECT (str): value of ``type`` equal to a profile that is
+            evaluated only when a user connects
+        USER_CONNECT_HIDDEN (str): value of ``type`` when a profile is
+            evaluated the same as USER_CONNECT but is hidden from the admin UI
+        USER_COMPILE (str): value of ``type`` when a profile is evaluated on
+            iptables compile or when a user connects
+        USER_DEFAULT (str): value of ``type`` for the ``__DEFAULT__`` record
+        GROUP (str): value of ``type`` for group records
+        PROFILE_TYPES (tuple[str]): All types that a profile could be
+        USER_TYPES (tuple[str]): List of types valid for a new user
     """
+    USER_CONNECT = 'user_connect'
+    USER_CONNECT_HIDDEN = 'user_connect_hidden'
+    USER_COMPILE = 'user_compile'
+    USER_DEFAULT = 'user_default'
+    GROUP = 'group'
+
+    PROFILE_TYPES = (
+        USER_CONNECT, USER_CONNECT_HIDDEN, USER_COMPILE, USER_DEFAULT, GROUP
+    )
+    
+    USER_TYPES = (
+        USER_CONNECT, USER_CONNECT_HIDDEN, USER_COMPILE
+    )
+
     def __init__(self, **attrs):
         for key in attrs:
             if not isinstance(key, str):
@@ -29,6 +53,10 @@ class Profile:
                     'Attributes for a profile must have keys that are all '
                     'strings'
                 )
+        if attrs.get('type') not in self.PROFILE_TYPES:
+            raise exceptions.AccessServerProfileIntegrityError(
+                f"Value of property 'type' must be one of {self.PROFILE_TYPES}"
+            )
         self._attrs = attrs
     
     @property
