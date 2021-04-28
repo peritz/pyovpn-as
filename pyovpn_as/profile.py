@@ -1,6 +1,7 @@
 """Contains the class which represents a profile on the server. This class is
 rarely used directly and is rather subclassed into the User and Group classes.
 """
+from . import exceptions
 
 class Profile:
     """Represents a profile on the OpenVPN Access Server and provides a logical
@@ -32,7 +33,7 @@ class Profile:
         """
         prop = self._attrs.get('prop_deny', '')
         if not isinstance(prop, str):
-            raise TypeError(
+            raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_deny must be str, not a {type(prop)}'
             )
         return prop.lower() == 'true'
@@ -47,7 +48,7 @@ class Profile:
         """
         prop = self._attrs.get('prop_superuser', '')
         if not isinstance(prop, str):
-            raise TypeError(
+            raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_superuser must be str, not a {type(prop)}'
             )
         return prop.lower() == 'true'
@@ -70,7 +71,7 @@ class Profile:
         """
         prop = self._attrs.get('prop_pwd_change', '')
         if not isinstance(prop, str):
-            raise TypeError(
+            raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_pwd_change must be str, not a {type(prop)}'
             )
         return prop.lower() == 'true'
@@ -86,7 +87,7 @@ class Profile:
         """
         prop = self._attrs.get('prop_autologin', '')
         if not isinstance(prop, str):
-            raise TypeError(
+            raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_autologin must be str, not a {type(prop)}'
             )
         return prop.lower() == 'true'
@@ -102,7 +103,7 @@ class Profile:
         """
         prop = self._attrs.get('prop_pwd_strength', 'true')
         if not isinstance(prop, str):
-            raise TypeError(
+            raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_pwd_strength must be str, not a {type(prop)}'
             )
         return prop.lower() == 'true'
@@ -117,7 +118,7 @@ class Profile:
         """
         prop = self._attrs.get('prop_autogenerate', 'true')
         if not isinstance(prop, str):
-            raise TypeError(
+            raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_autogenerate must be str, not a {type(prop)}'
             )
         return prop.lower() == 'true'
