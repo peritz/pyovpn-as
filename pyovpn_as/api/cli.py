@@ -8,8 +8,12 @@ Attributes:
 
 import logging
 from datetime import datetime
-from pyovpn_as.api.exceptions import ApiClientParameterError, ApiClientPasswordComplexityError, ApiClientPasswordIncorrectError, ApiClientPasswordResetError
 from typing import TypedDict, TypeVar
+
+from pyovpn_as.api.exceptions import (ApiClientParameterError,
+                                      ApiClientPasswordComplexityError,
+                                      ApiClientPasswordIncorrectError,
+                                      ApiClientPasswordResetError)
 
 from .rpc import RpcClient
 
@@ -305,7 +309,8 @@ class AccessServerClient:
         if not return_val['status'] \
             and not ignore_checks \
             and return_val['reason'] == \
-            'error verifying current password: failed to enter correct current password':
+            ('error verifying current password: failed to enter correct current'
+            ' password'):
             raise ApiClientPasswordIncorrectError('Failed to enter the '
                 f'correct current password for user "{user}"')
 
@@ -361,7 +366,8 @@ class AccessServerClient:
     def GetUserlogin(self, user: str=None) -> str:
         """Get a user-locked connection profile for the given user
 
-        This is equivalent to Get1(user) except that if the configuration does not exist on the server it will be created.
+        This is equivalent to Get1(user) except that if the configuration does
+        not exist on the server it will be created.
 
         E.g.
 
@@ -417,7 +423,8 @@ class AccessServerClient:
         Args:
             prof (str, optional): Name of the profile to fetch. Defaults to None
             plist (list[str], optional): List of profile filter terms. These
-                are profile entries that we want to extract from the results. Essentially, the columns we select. Defaults to None
+                are profile entries that we want to extract from the results. 
+                Essentially, the columns we select. Defaults to None
 
         Returns:
             dict[str, str]: Configuration found based on search terms, or
@@ -437,10 +444,16 @@ class AccessServerClient:
 
         Args:
             user (str): The list of users to disconnect from the VPN
-            restart (bool, optional): Whether or not to restart the client as opposed to just halting them. Defaults to False.
-            reason (str, optional): The reason logged on the server for the disconnection. Defaults to None.
-            client_reason (str, optional): The reason sent to the client for disconnection. Defaults to None.
-            psid (bool, optional): Whether or not to preserve the most recently used SessionID. Use this in combination with restart to invite the client to reconnect with the same Session ID. Defaults to False.
+            restart (bool, optional): Whether or not to restart the client as
+                opposed to just halting them. Defaults to False.
+            reason (str, optional): The reason logged on the server for the
+                disconnection. Defaults to None.
+            client_reason (str, optional): The reason sent to the client for
+                disconnection. Defaults to None.
+            psid (bool, optional): Whether or not to preserve the most recently
+                used SessionID. Use this in combination with restart to invite
+                the client to reconnect with the same Session ID. Defaults to
+                False.
 
         Returns:
             int: The number of users kicked, though this should just be 1 or 0
