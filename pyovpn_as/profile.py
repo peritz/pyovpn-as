@@ -1,4 +1,8 @@
 """Contains the classes which represents profiles on the server.
+
+Some notes on profiles:
+
+* If you want to make a group, you can't just pass ``type='group'``, you also have to declare ``group_declare='true'``
 """
 from typing import Any
 
@@ -61,7 +65,7 @@ class Profile:
             )
         self._attrs = attrs
     
-    
+
     @property
     def is_banned(self) -> bool:
         """bool: Whether or not the profile is banned.
@@ -251,3 +255,38 @@ class UserProfile(Profile):
             )
         super().__init__(**attrs)
         self.username = username
+
+
+
+class GroupProfile(Profile):
+    """Represents a group profile on the server
+
+    This class encapsulates a group and its properties on the server (whether 
+    it exists or not) and provides a logical layer through which we can make 
+    sense of its properties. We also provide some assurance that the integrity 
+    of the group's userprop profile is maintained.
+
+    Args:
+        group_name (str): The name of the group whose profile we are
+            representing
+        **attrs (dict[str, Any]): The dictionary containing the attributes for a
+            profile. This can be fetched from the server with RemoteSacli
+            UserPropGet
+
+    Attributes:
+        group_name (str): The name of the group whose profile we are
+            representing
+        _attrs (dict[str, Any]): The dictionary containing the attributes for a
+            profile provided at ``__init__``
+    """
+    def __init__(self, group_name, **attrs):
+        if attrs.get('type') != self.GROUP:
+            raise exceptions.AccessServerProfileIntegrityError(
+                f"Value of type for a group must be '{self.GROUP}'"
+            )
+        elif attrs.get('group_declare', '').lower() != 'true':
+            raise exceptions.AccessServerProfileIntegrityError(
+                'Value of group_declare must be true for a group'
+            )
+        super().__init__(**attrs)
+        self.group_name = group_name
