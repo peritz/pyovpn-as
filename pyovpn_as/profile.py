@@ -61,6 +61,7 @@ class Profile:
             )
         self._attrs = attrs
     
+    
     @property
     def is_banned(self) -> bool:
         """bool: Whether or not the profile is banned.
@@ -75,6 +76,7 @@ class Profile:
                 f'Type of prop_deny must be str, not a {type(prop)}'
             )
         return prop.lower() == 'true'
+    
     
     @property
     def is_admin(self) -> bool:
@@ -91,12 +93,14 @@ class Profile:
             )
         return prop.lower() == 'true'
     
+
     @property
     def is_group(self) -> bool:
         """bool: Whether or not the profile represents a group. True when the 
         ``type`` property is equal to 'group'
         """
         return self._attrs.get('type') == 'group'
+
 
     @property
     def can_change_password(self) -> bool:
@@ -114,6 +118,7 @@ class Profile:
             )
         return prop.lower() == 'true'
 
+
     @property
     def can_autologin(self) -> bool:
         """bool: Whether or not users derived from this profile can download a 
@@ -130,6 +135,7 @@ class Profile:
             )
         return prop.lower() == 'true'
 
+
     @property
     def will_check_password_strength(self) -> bool:
         """bool: Whether the server should check the password strength when a 
@@ -145,6 +151,7 @@ class Profile:
                 f'Type of prop_pwd_strength must be str, not a {type(prop)}'
             )
         return prop.lower() == 'true'
+
 
     @property
     def will_autogenerate_client(self) -> bool:
@@ -163,6 +170,7 @@ class Profile:
                 f'Type of prop_autogenerate must be str, not a {type(prop)}'
             )
         return prop.lower() == 'true'
+
 
     def get_prop(self, key: str) -> Any:
         """Get a property from the profile
