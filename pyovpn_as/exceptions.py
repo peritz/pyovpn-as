@@ -71,3 +71,8 @@ class AccessServerConfigError(AccessServerBaseException):
        operation to be run
     """
     pass
+
+
+class AccessServerProfileIntegrityError(AccessServerBaseException):
+    """Raised when a profile contains a value that wasn't expected. E.g. when the ``type`` property contains anything other than the defined types.
+    """
