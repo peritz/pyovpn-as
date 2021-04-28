@@ -1,7 +1,9 @@
 """Contains the classes which represents profiles on the server.
 """
 from typing import Any
+
 from . import exceptions
+
 
 class Profile:
     """Represents a profile on the OpenVPN Access Server and provides a logical
@@ -146,7 +148,10 @@ class Profile:
 
     @property
     def will_autogenerate_client(self) -> bool:
-        """bool: Whether or not the server will autogenerate a connection profile for users derived from this profile. If set to true and the given user tries to access their client, the server will generate one if it doesn't exist.
+        """bool: Whether or not the server will autogenerate a connection 
+        profile for users derived from this profile. If set to true and the 
+        given user tries to access their client, the server will generate one 
+        if it doesn't exist.
         
         Derived from the ``prop_autogenerate`` property.
         
@@ -238,4 +243,3 @@ class UserProfile(Profile):
             )
         super().__init__(**attrs)
         self.username = username
-        
