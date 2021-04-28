@@ -1,6 +1,7 @@
 """Contains the class which represents a profile on the server. This class is
 rarely used directly and is rather subclassed into the User and Group classes.
 """
+from typing import Any
 from . import exceptions
 
 class Profile:
@@ -122,3 +123,52 @@ class Profile:
                 f'Type of prop_autogenerate must be str, not a {type(prop)}'
             )
         return prop.lower() == 'true'
+
+    def get_prop(self, key: str) -> Any:
+        """Get a property from the profile
+
+        Args:
+            key (str): The property key to get
+
+        Returns:
+            Any: The value at that key
+
+        Raises:
+            KeyError: No property defined for that key
+        """
+        value = self._attrs.get(
+            key, KeyError(
+                f"No value for key '{key}' defined."
+            )
+        )
+        if isinstance(value, KeyError):
+            raise value
+        return value
+
+
+    def __getattr__(self, attribute: str) -> Any:
+        """If we can't get the attribute from regular means, this function is 
+        called as a fallback
+
+        In this case we try to fetch the attribute as though it were a property 
+        of the profile we were searching for.
+
+        Args:
+            attribute (str): The attribute we are searching for
+
+        Returns:
+            Any: The value of the attribute from the properties of the profile
+
+        Raises:
+            AttributeError: When the property doesn't exist
+        """
+        value = self._attrs.get(
+            attribute,
+            AttributeError(
+                f"'{self.__class__.__name__}' object has no attribute "
+                f"'{attribute}'"
+            )
+        )
+        if isinstance(value, AttributeError):
+            raise value
+        return value
