@@ -6,7 +6,7 @@ import secrets
 import string
 from typing import Any
 
-from pyovpn_as.api.cli import AccessServerClient
+from pyovpn_as.api.cli import RemoteSacli
 
 from . import exceptions
 
@@ -81,7 +81,7 @@ def generate_random_password(length: int=16, retries: int=10) -> str:
             )
         password = ''.join([secrets.choice(characters) for _ in range(length)])
         try:
-            complex = AccessServerClient.is_password_complex(password)
+            complex = RemoteSacli.is_password_complex(password)
         except:
             continue
         tried += 1

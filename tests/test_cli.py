@@ -14,7 +14,7 @@ class TestIsPasswordComplex(unittest.TestCase):
         password = 'Th1sIs4C0mpliantPassw0rd%'
         try:
             self.assertTrue(
-                cli.AccessServerClient.is_password_complex(password)
+                cli.RemoteSacli.is_password_complex(password)
             )
         except Exception as err:
             self.fail(f'Password complexity check failed: {err}')
@@ -22,18 +22,18 @@ class TestIsPasswordComplex(unittest.TestCase):
     def test_short_password_raises_error(self):
         password = '$T2a'
         with self.assertRaises(ApiClientPasswordComplexityError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
     def test_7_char_password_raises_error(self):
         password = '$T2a123'
         with self.assertRaises(ApiClientPasswordComplexityError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
     def test_8_char_password_returns_true(self):
         password = '$T2a1234'
         try:
             self.assertTrue(
-                cli.AccessServerClient.is_password_complex(password)
+                cli.RemoteSacli.is_password_complex(password)
             )
         except Exception as err:
             self.fail(f'Password complexity check failed: {err}')
@@ -42,7 +42,7 @@ class TestIsPasswordComplex(unittest.TestCase):
         password = f'$T2a{"a" * 1000000}'
         try:
             self.assertTrue(
-                cli.AccessServerClient.is_password_complex(password)
+                cli.RemoteSacli.is_password_complex(password)
             )
         except Exception as err:
             self.fail(f'Password complexity check failed: {err}')
@@ -50,27 +50,27 @@ class TestIsPasswordComplex(unittest.TestCase):
     def test_none_password_raises_error(self):
         password = None
         with self.assertRaises(ApiClientPasswordComplexityError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
     def test_non_str_password_raises_TypeError(self):
         password = []
         with self.assertRaises(TypeError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
     def test_password_no_digit_raises_error(self):
         password = 'abcdE$Gh'
         with self.assertRaises(ApiClientPasswordComplexityError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
     def test_password_no_lowercase_raises_error(self):
         password = 'ABCDE$G1'
         with self.assertRaises(ApiClientPasswordComplexityError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
     def test_password_no_uppercase_raises_error(self):
         password = 'abcde$g1'
         with self.assertRaises(ApiClientPasswordComplexityError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
     def test_password_with_each_symbol_returns_true(self):
         password = 'Th1sIs4C0mpliantPassw0rd%'
@@ -78,7 +78,7 @@ class TestIsPasswordComplex(unittest.TestCase):
             password = password[:-1] + sym
             try:
                 self.assertTrue(
-                    cli.AccessServerClient.is_password_complex(password)
+                    cli.RemoteSacli.is_password_complex(password)
                 )
             except ApiClientPasswordComplexityError as err:
                 self.fail(
@@ -88,22 +88,22 @@ class TestIsPasswordComplex(unittest.TestCase):
     def test_password_with_disallowed_symbols_raises_error(self):
         password = 'abcde:g1'
         with self.assertRaises(ApiClientPasswordComplexityError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
     def test_password_with_control_characters_raises_error(self):
         password = 'abcde\x08g1'
         with self.assertRaises(ApiClientPasswordComplexityError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
     def test_password_with_whitespace_raises_error(self):
         password = 'abcde\ng1'
         with self.assertRaises(ApiClientPasswordComplexityError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
     def test_password_with_non_ascii_raises_error(self):
         password = 'abcde\u0394g1'
         with self.assertRaises(ApiClientPasswordComplexityError):
-            cli.AccessServerClient.is_password_complex(password)
+            cli.RemoteSacli.is_password_complex(password)
 
 
 if __name__ == '__main__':

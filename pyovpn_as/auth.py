@@ -5,7 +5,7 @@ import logging
 from typing import Any
 import hashlib
 
-from pyovpn_as.api.cli import AccessServerClient
+from pyovpn_as.api.cli import RemoteSacli
 import pyovpn_as.api.exceptions
 
 from . import exceptions
@@ -16,12 +16,12 @@ logger = logging.getLogger(__name__)
 
 @utils.debug_log_call()
 def get_user(
-    client: AccessServerClient, username: str
+    client: RemoteSacli, username: str
 ) -> dict[str, Any]:
     """Retrieves a user from the server using the specified client
 
     Args:
-        client (AccessServerClient): The client to interface with
+        client (RemoteSacli): The client to interface with
         username (str): The user to fetch
 
     Raises:
@@ -48,7 +48,7 @@ def get_user(
 
 @utils.debug_log_call(redact=[2, 'password'])
 def create_new_user(
-    client: AccessServerClient,
+    client: RemoteSacli,
     username: str,
     password: str=None,
     group: str=None,
@@ -68,7 +68,7 @@ def create_new_user(
     the process.
 
     Args:
-        client (AccessServerClient): Client used to connect to Access Server
+        client (RemoteSacli): Client used to connect to Access Server
         username (str): Username of the user to create
         password (str, optional): Password to set for user. If None, no
             password will be set. Must adhere to complexity requirements.
@@ -186,7 +186,7 @@ def create_new_user(
                     'manually using SHA256 hash'
                 )
                 # Password complexity checks need to be done manually
-                if AccessServerClient.is_password_complex(password):
+                if RemoteSacli.is_password_complex(password):
                     sha = hashlib.sha256(password.encode())
                     client.UserPropPut(
                         username, 'pvt_password_digest',
@@ -215,12 +215,12 @@ def create_new_user(
 
 
 @utils.debug_log_call()
-def create_client_for_user(client: AccessServerClient, user: str) -> None:
+def create_client_for_user(client: RemoteSacli, user: str) -> None:
     """Creates a new client record for a given user, or raises an error if one
        exists
 
     Args:
-        client (AccessServerClient): Client used to connect to Access Server
+        client (RemoteSacli): Client used to connect to Access Server
         user (str): Username to generate the client for
 
     Raises:
@@ -249,13 +249,13 @@ def create_client_for_user(client: AccessServerClient, user: str) -> None:
 
 @utils.debug_log_call()
 def delete_user(
-    client: AccessServerClient,
+    client: RemoteSacli,
     username: str
 ) -> None:
     """Deletes a user from the server
 
     Args:
-        client (AccessServerClient): Client used to connect to AccessServer
+        client (RemoteSacli): Client used to connect to AccessServer
         username (str): User to delete
 
     Raises:
@@ -289,13 +289,13 @@ def delete_user(
 
 @utils.debug_log_call()
 def get_user_login_ovpn_config(
-    client: AccessServerClient,
+    client: RemoteSacli,
     username: str
 ) -> str:
     """Fetches the .ovpn configuration for 
 
     Args:
-        client (AccessServerClient): Client used to connect to AccessServer
+        client (RemoteSacli): Client used to connect to AccessServer
         username (str): Username to fetch configuration for
 
     Raises:
@@ -324,13 +324,13 @@ def get_user_login_ovpn_config(
 
 @utils.debug_log_call()
 def revoke_user_certificates(
-    client: AccessServerClient,
+    client: RemoteSacli,
     username: str
 ) -> None:
     """Revoke all certificates for the given user
 
     Args:
-        client (AccessServerClient): Client used to connect to AccessServer
+        client (RemoteSacli): Client used to connect to AccessServer
         username (str): User whose certificates we want to revoke
 
     Raises:

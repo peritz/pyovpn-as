@@ -34,7 +34,7 @@ XML_RPC_VAL = TypeVar(
     datetime
 )
 
-class AccessServerClient:
+class RemoteSacli:
     """A Wrapper around RpcClient that allows us to emulate the functionality of
        the sacli tool provided in OpenVPN Access Server installations.
 
