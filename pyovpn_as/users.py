@@ -3,10 +3,9 @@ high-level functionality for managing users on the sacli server
 """
 import hashlib
 import logging
-from typing import Any, Union
+from typing import Union
 
 import pyovpn_as.api.exceptions
-from pyovpn_as.api import cli
 
 from . import exceptions, utils
 from .profile import GroupProfile, UserProfile, ProfileOperations
@@ -141,7 +140,7 @@ class UserOperations(ProfileOperations):
         """
         # We're going to be creating a user with a local password
         # Local Auth must therefore be enabled
-        if not self._sacli.LocalAuthEnabled():
+        if password is not None and not self._sacli.LocalAuthEnabled():
             raise exceptions.AccessServerConfigError(
                 'Creating a user with local password requires local auth to be '
                 'enabled on the server'
