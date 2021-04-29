@@ -363,3 +363,23 @@ class UserOperations(ProfileOperations):
 
         # Revoke all certs
         self._sacli.RevokeUser(username)
+
+
+    @utils.debug_log_call()
+    def ban_user(
+        self,
+        user: Union[str, UserProfile]
+    ) -> None:
+        """Ban a user from connecting to the VPN
+
+        Args:
+            user (Union[str, UserProfile]): The user to ban from the VPN
+
+        Raises:
+            AccessServerProfileNotFoundError: User does not exist on the server.
+            AccessServerProfileExistsError: Username provided is the name of a
+                group, not a user
+        """
+        username = self._resolve_username(user)
+        self.get_user(username)
+        self._ban_profile(username)

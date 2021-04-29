@@ -562,3 +562,18 @@ class ProfileOperations:
                 f'Could not delete profile "{profile_name}" for an unknown '
                 'reason'
             )
+
+
+    def _ban_profile(self, profile_name: str) -> None:
+        """Ban users derived from this profile from connecting to the VPN
+
+        Args:
+            profile_name (str): Profile to ban
+
+        Raises:
+            AccessServerProfileNotFoundError: Profile does not exist
+        """
+        profile = self._get_profile(profile_name)
+        self._sacli.UserPropPut(
+            profile_name, 'prop_deny', 'true', profile.is_hidden
+        )
