@@ -69,11 +69,14 @@ class Profile:
                     'Attributes for a profile must have keys that are all '
                     'strings'
                 )
-        if attrs.get('type') not in self.PROFILE_TYPES:
-            raise exceptions.AccessServerProfileIntegrityError(
-                f"Value of property 'type' must be one of {self.PROFILE_TYPES}"
-            )
+        # Set attributes using Python magic to avoid issues in self.__setattr__
+        # We set it twice, once so it is recognised in self.__setattr__ and 
+        # again to help with linting
+        object.__setattr__(self, '_attrs', {})
         self._attrs = attrs
+
+        # Now force a profile type resolve
+        self.type = self.USER_CONNECT
     
 
     @property
@@ -84,7 +87,7 @@ class Profile:
 
         Default behaviour is False
         """
-        prop = self._attrs.get('prop_deny', '')
+        prop = self.props.get('prop_deny', '')
         if not isinstance(prop, str):
             raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_deny must be str, not a {type(prop)}'
@@ -100,7 +103,7 @@ class Profile:
 
         Default behaviour is False
         """
-        prop = self._attrs.get('prop_superuser', '')
+        prop = self.props.get('prop_superuser', '')
         if not isinstance(prop, str):
             raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_superuser must be str, not a {type(prop)}'
@@ -113,7 +116,7 @@ class Profile:
         """bool: Whether or not the profile represents a group. True when the 
         ``group_declare`` property is equal to true
         """
-        prop = self._attrs.get('group_declare', '')
+        prop = self.props.get('group_declare', '')
         if not isinstance(prop, str):
             raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of group_declare must be str, not a {type(prop)}'
@@ -130,7 +133,7 @@ class Profile:
 
         Default behaviour is False
         """
-        prop = self._attrs.get('prop_pwd_change', '')
+        prop = self.props.get('prop_pwd_change', '')
         if not isinstance(prop, str):
             raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_pwd_change must be str, not a {type(prop)}'
@@ -147,7 +150,7 @@ class Profile:
 
         Default behaviour is False
         """
-        prop = self._attrs.get('prop_autologin', '')
+        prop = self.props.get('prop_autologin', '')
         if not isinstance(prop, str):
             raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_autologin must be str, not a {type(prop)}'
@@ -164,7 +167,7 @@ class Profile:
 
         Default behaviour is True
         """
-        prop = self._attrs.get('prop_pwd_strength', 'true')
+        prop = self.props.get('prop_pwd_strength', 'true')
         if not isinstance(prop, str):
             raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_pwd_strength must be str, not a {type(prop)}'
@@ -183,7 +186,7 @@ class Profile:
         
         Default behaviour is True.
         """
-        prop = self._attrs.get('prop_autogenerate', 'true')
+        prop = self.props.get('prop_autogenerate', 'true')
         if not isinstance(prop, str):
             raise exceptions.AccessServerProfileIntegrityError(
                 f'Type of prop_autogenerate must be str, not a {type(prop)}'
@@ -194,7 +197,11 @@ class Profile:
     @property
     def props(self) -> dict[str, Any]:
         """dict[str, Any]: The properties set on the profile
+
+        When this is requested, we immediately resolve the type in the case 
+        that anything has changed
         """
+        self._resolve_type()
         return self._attrs
 
 
@@ -210,7 +217,7 @@ class Profile:
         Raises:
             KeyError: No property defined for that key
         """
-        value = self._attrs.get(
+        value = self.props.get(
             key, KeyError(
                 f"No value for key '{key}' defined."
             )
@@ -236,7 +243,7 @@ class Profile:
         Raises:
             AttributeError: When the property doesn't exist
         """
-        value = self._attrs.get(
+        value = self.props.get(
             attribute,
             AttributeError(
                 f"'{self.__class__.__name__}' object has no attribute "
@@ -247,6 +254,66 @@ class Profile:
             raise value
         return value
 
+
+    def __setattr__(self, key, value):
+        """Sets a property on the profile unless it exists as an attribute on 
+        the object. We also evaluate the type of profile we are dealing with
+
+        Args:
+            key (str): The property to set
+            value (Any): The value of the property
+        """
+        try:
+            self.__getattribute__(key)
+        except AttributeError:
+            self._attrs[key] = value
+            self._resolve_type()
+        else:
+            object.__setattr__(self, key, value)
+
+
+    def _resolve_type(self):
+        """Resolves the type of profile this is
+
+        Type resolving is based on the following rules:
+
+        * If ``group_declare`` is true, ``type = group``
+        * If ``prop_superuser`` is true, ``type = user_compile``
+        * If ``inherit``, ``conn_ip``, ``c2s_route``, ``access_from/access_to``, ``dmz_ip``, 
+        or ``bypass_route`` are specified, ``type = user_compile``
+        * If ``type = user_connect_hidden`` we leave it as is
+        * If ``type = user_default`` we leave it as is, but dealing with the 
+        default group may cause issues
+        * Otherwise type is ``user_connect``
+        """
+        prof_type = self._attrs.get('type')
+        prop_superuser = self._attrs.get('prop_superuser')
+        group_declare = self._attrs.get('group_declare')
+
+        if isinstance(group_declare, str) \
+            and group_declare.lower() == 'true':
+            self._attrs['type'] = self.GROUP
+        elif (
+            isinstance(prop_superuser, str)
+            and prop_superuser.lower() == 'true'
+        ) or 'conn_ip' in self._attrs or 'inherit' in self._attrs:
+            self._attrs['type'] = self.USER_COMPILE
+        else:
+            for key in self._attrs:
+                if key.startswith((
+                    'c2s_route', 'access_from', 'access_to',
+                    'dmz_ip', 'bypass_route'
+                )):
+                    self._attrs['type'] = self.USER_COMPILE
+                    break
+            if isinstance(prof_type, str) \
+                and prof_type.lower() == self.USER_CONNECT_HIDDEN:
+                self._attrs['type'] = self.USER_CONNECT_HIDDEN
+            if isinstance(prof_type, str) \
+                and prof_type.lower() == self.USER_DEFAULT:
+                self._attrs['type'] = self.USER_DEFAULT
+            else:
+                self._attrs['type'] = self.USER_CONNECT        
 
 
 class UserProfile(Profile):
