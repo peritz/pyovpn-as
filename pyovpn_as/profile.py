@@ -526,4 +526,26 @@ class ProfileOperations:
         else:
             logger.debug(f'Fetching created profile for return...')
             return self._get_profile(profile_name)
-        
+
+    
+    def _delete_profile(self, profile_name: str) -> None:
+        """Delete a given profile from the server
+
+        Args:
+            profile_name (str): Profile to delete
+
+        Raises:
+            AccessServerProfileNotFoundError: Profile does not exist
+        """
+        self._sacli.UserPropDelAll(profile_name)
+
+        # Check that the profile is deleted
+        try:
+            self._get_profile(profile_name)
+        except exceptions.AccessServerProfileNotFoundError:
+            return
+        else:
+            raise exceptions.AccessServerProfileDeleteError(
+                f'Could not delete profile "{profile_name}" for an unknown '
+                'reason'
+            )

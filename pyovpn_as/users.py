@@ -296,28 +296,12 @@ class UserOperations(ProfileOperations):
                 profile
         """
         username = self._resolve_username(user)
-
-        # 1. Check that the user exists
-        profile = self.get_user(username)
+        # Check user exists and is a user
+        self.get_user(username)
         
-        if profile.is_group:
-            raise exceptions.AccessServerProfileExistsError(
-                f'Profile "{username}" is a group, not a user'
-            )
-        
-        # 2. Delete the user and revoke certs
+        # Delete the user and revoke certs
         self.revoke_user_certificates(username)
-        self._sacli.UserPropDelAll(username)
-
-        # 3. Check that the profile is deleted
-        try:
-            self._get_profile(username)
-        except exceptions.AccessServerProfileNotFoundError:
-            return
-        else:
-            raise exceptions.AccessServerProfileDeleteError(
-                f'Could not delete profile "{username}" for an unknown reason'
-            )
+        self._delete_profile(username)
 
 
     @utils.debug_log_call()
