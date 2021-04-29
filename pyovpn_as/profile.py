@@ -352,13 +352,13 @@ class UserProfile(Profile):
         for key, value in attrs.items():
             props[key] = value
 
-        if props.get('type') not in self.USER_TYPES:
-            raise exceptions.AccessServerProfileIntegrityError(
-                f"Value of type property must be one of {self.USER_TYPES} "
-                "for a user profile"
-            )
         super().__init__(**props)
-        self.username = username
+        if self.type not in self.USER_TYPES:
+            raise exceptions.AccessServerProfileIntegrityError(
+                f"Properties given do not describe a UserProfile"
+            )
+        # __setattr__ issues, see Profile class
+        object.__setattr__(self, 'username', username)
 
 
 
@@ -399,16 +399,13 @@ class GroupProfile(Profile):
         for key, value in attrs.items():
             props[key] = value
 
-        if props.get('type') != self.GROUP:
-            raise exceptions.AccessServerProfileIntegrityError(
-                f"Value of type for a group must be '{self.GROUP}'"
-            )
-        elif props.get('group_declare', '').lower() != 'true':
-            raise exceptions.AccessServerProfileIntegrityError(
-                'Value of group_declare must be true for a group'
-            )
         super().__init__(**props)
-        self.group_name = group_name
+        if not self.is_group:
+            raise exceptions.AccessServerProfileIntegrityError(
+                'Properties given do not describe a GroupProfile'
+            )
+        # __setattr__ issues, see Profile class
+        object.__setattr__(self, 'group_name', group_name)
 
 
 class ProfileOperations:
