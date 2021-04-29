@@ -385,3 +385,18 @@ class UserOperations(ProfileOperations):
         username = self._resolve_username(user)
         self.get_user(username)
         self._ban_profile(username)
+
+    
+    @utils.debug_log_call()
+    def list_users(self) -> list[UserProfile]:
+        """Lists all users present on the server
+
+        Returns:
+            list[UserProfile]: A list of all user profiles on the target server
+        """
+        profile_dict = self._sacli.UserPropGet(
+            tfilt=list(UserProfile.USER_TYPES)
+        )
+        return [
+            UserProfile(user, **props) for user, props in profile_dict.items()
+        ]
