@@ -7,6 +7,10 @@ Some notes on profiles:
 * Passing noui as True to UserPropPut does not change anything if
     * ``type`` is ``user_compile`` (due to prop_superuser being set)
     * ``group_declare`` is True
+
+TODO Prevent setting group_declare true on a UserProfile and false on a 
+GroupProfile
+TODO conduct special properties type checks within profile creation
 """
 from pyovpn_as.api import cli
 import pyovpn_as.api.exceptions
@@ -77,6 +81,15 @@ class Profile:
 
         # Now force a profile type resolve
         self.type = self.USER_CONNECT
+
+
+    @property
+    def is_hidden(self) -> bool:
+        """bool: Whether or not a profile is hidden from the admin interface
+        
+        True when ``type`` is equal to ``user_connect_hidden``
+        """
+        return self.type == self.USER_CONNECT_HIDDEN
     
 
     @property
@@ -313,7 +326,8 @@ class Profile:
                 and prof_type.lower() == self.USER_DEFAULT:
                 self._attrs['type'] = self.USER_DEFAULT
             else:
-                self._attrs['type'] = self.USER_CONNECT        
+                self._attrs['type'] = self.USER_CONNECT   
+        self.type = self._attrs['type']     
 
 
 class UserProfile(Profile):
@@ -498,9 +512,6 @@ class ProfileOperations:
 
         # Create new profile object (checks integrity of attributes)
         new_profile = Profile(new_props)
-
-        # Are we required to hide the user from the Admin UI?
-        hide = new_profile.type == Profile.USER_CONNECT_HIDDEN
         
         try:
             # Set properties required on the new profile
@@ -509,7 +520,9 @@ class ProfileOperations:
                 logger.debug(
                     f'Setting property "{key}" on profile "{profile_name}"'
                 )
-                self._sacli.UserPropPut(profile_name, key, value, hide)
+                self._sacli.UserPropPut(
+                    profile_name, key, value, new_profile.is_hidden
+                )
 
         except (
             pyovpn_as.api.exceptions.ApiClientBaseException,

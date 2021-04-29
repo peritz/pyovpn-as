@@ -199,9 +199,9 @@ class UserOperations(ProfileOperations):
         # Try to create the user and delete profile if any step fails
         logger.info(f'Creating user "{username}"')
         if isinstance(user, UserProfile):
-            new_prof = self._create_profile(username, user, **properties)
+            new_profile = self._create_profile(username, user, **properties)
         else:
-            new_prof = self._create_profile(username, **properties)
+            new_profile = self._create_profile(username, **properties)
         try:
             if password is not None:
                 logger.debug(f'Setting password on profile "{username}"')
@@ -221,10 +221,9 @@ class UserOperations(ProfileOperations):
                     # already hidden
                     if self._sacli.is_password_complex(password):
                         sha = hashlib.sha256(password.encode())
-                        hide = new_prof.type == UserProfile.USER_CONNECT_HIDDEN
                         self._sacli.UserPropPut(
                             username, 'pvt_password_digest',
-                            sha.hexdigest(), hide
+                            sha.hexdigest(), new_profile.is_hidden
                         )
             if generate_client:
                 self.create_client_for_user(username)
