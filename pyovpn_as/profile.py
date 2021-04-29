@@ -549,6 +549,8 @@ class ProfileOperations:
 
         Raises:
             AccessServerProfileNotFoundError: Profile does not exist
+            AccessServerProfileDeleteError: Could not delete the profile for
+                an unknown reason
         """
         self._sacli.UserPropDelAll(profile_name)
 

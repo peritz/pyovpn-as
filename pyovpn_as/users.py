@@ -293,6 +293,8 @@ class UserOperations(ProfileOperations):
                 not exist
             AccessServerProfileExistsError: username supplied is name of group
                 profile
+            AccessServerProfileDeleteError: Could not delete the profile for
+                an unknown reason
         """
         username = self._resolve_username(user)
         # Check user exists and is a user
