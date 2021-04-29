@@ -187,7 +187,7 @@ def validate_client_args(
 
 
 @utils.debug_log_call()
-def from_env() -> cli.RemoteSacli:
+def from_env() -> AccessServerManagementClient:
     """Gets parameters for Access Server from environment variables
 
     The environment variables we are looking for here are:
@@ -208,7 +208,7 @@ def from_env() -> cli.RemoteSacli:
             way
 
     Returns:
-        cli.RemoteSacli: configured using the above values
+        AccessServerManagementClient: configured using the above values
     """
     endpoint = os.environ.get('PYOVPN_AS_ENDPOINT_URL')
     username = os.environ.get('PYOVPN_AS_USERNAME')
@@ -241,14 +241,14 @@ def from_env() -> cli.RemoteSacli:
         f'Creating client with ({repr(endpoint)}, {repr(username)}, '
         f'REDACTED, {repr(debug)}, {repr(allow_untrusted)})'
     )
-    return cli.RemoteSacli(
-        endpoint, username, password,
-        debug, allow_untrusted
+    return AccessServerManagementClient(
+        endpoint, username, password, debug=debug,
+        allow_untrusted=allow_untrusted
     )
 
 
 @utils.debug_log_call()
-def from_file(filepath: os.PathLike) -> cli.RemoteSacli:
+def from_file(filepath: os.PathLike) -> AccessServerManagementClient:
     """Retrieve client configuration from file
 
     The file must be a JSON file with a single object, specifying the following:
@@ -267,7 +267,7 @@ def from_file(filepath: os.PathLike) -> cli.RemoteSacli:
         ApiClientConfigurationError: JSON configuration was invalid in some way
 
     Returns:
-        cli.RemoteSacli: The client configured using the above options
+        AccessServerManagementClient: The client configured using the above options
     """
     with open(filepath) as config_file:
         config = json.loads(config_file.read())
@@ -290,8 +290,9 @@ def from_file(filepath: os.PathLike) -> cli.RemoteSacli:
         f'Creating client with ({repr(endpoint)}, {repr(username)}, '
         f'REDACTED, {repr(debug)}, {repr(allow_untrusted)})'
     )
-    return cli.RemoteSacli(
-        endpoint, username, password, debug, allow_untrusted
+    return AccessServerManagementClient(
+        endpoint, username, password, debug=debug,
+        allow_untrusted=allow_untrusted
     )
 
 
@@ -302,7 +303,7 @@ def from_args(
     password: str,
     debug: bool=False,
     allow_untrusted: bool=False
-) -> cli.RemoteSacli:
+) -> AccessServerManagementClient:
     """Connect to AccessServer using config specified in arguments
 
     Args:
@@ -315,7 +316,7 @@ def from_args(
             untrusted SSL certs from server. Defaults to False.
 
     Returns:
-        cli.RemoteSacli
+        AccessServerManagementClient
     """
     validate_client_args(endpoint, username, password)
     if not isinstance(debug, bool) or not isinstance(allow_untrusted, bool):
@@ -326,6 +327,7 @@ def from_args(
         f'Creating client with ({repr(endpoint)}, {repr(username)}, '
         f'REDACTED, {repr(debug)}, {repr(allow_untrusted)})'
     )
-    return cli.RemoteSacli(
-        endpoint, username, password, debug, allow_untrusted
+    return AccessServerManagementClient(
+        endpoint, username, password, debug=debug,
+        allow_untrusted=allow_untrusted
     )
