@@ -3,10 +3,20 @@
 Some notes on profiles:
 
 * If you want to make a group, you can't just pass ``type='group'``, you also have to declare ``group_declare='true'``
+* You can't change the type manually, the properties that are set determine what type the record is
+* Passing noui as True to UserPropPut does not change anything if
+    * ``type`` is ``user_compile`` (due to prop_superuser being set)
+    * ``group_declare`` is True
 """
+from pyovpn_as.api import cli
+import pyovpn_as.api.exceptions
 from typing import Any
+import logging
 
 from . import exceptions
+
+
+logger = logging.getLogger(__name__)
 
 
 class Profile:
@@ -180,6 +190,13 @@ class Profile:
             )
         return prop.lower() == 'true'
 
+    
+    @property
+    def props(self) -> dict[str, Any]:
+        """dict[str, Any]: The properties set on the profile
+        """
+        return self._attrs
+
 
     def get_prop(self, key: str) -> Any:
         """Get a property from the profile
@@ -325,3 +342,124 @@ class GroupProfile(Profile):
             )
         super().__init__(**props)
         self.group_name = group_name
+
+
+class ProfileOperations:
+    """A class representing the operations that can take place against a 
+    userprop profile.
+
+    This class should not be instantiated directly, and is generally only used 
+    to subclass for GroupOperations and UserOperations. This is the reason for 
+    making all methods protected.
+
+    Args:
+        sacli (cli.RemoteSacli): The client we use to communicate with the
+            server
+    
+    Attributes:
+        _sacli (cli.RemoteSacli): The client we use to communicate with the 
+            server
+    """
+    def __init__(self, sacli: cli.RemoteSacli):
+        self._sacli = sacli
+
+
+    def _get_profile(self, profile_name: str) -> Profile:
+        """Get the userprop profile given by the profile name
+
+        Args:
+            profile_name (str): The profile to get from the server
+
+        Raises:
+            AccessServerProfileNotFoundError: Profile does not exist
+
+        Returns:
+            Profile: Profile representing the userprop profile
+        """
+        profile_dict = self._sacli.UserPropGet(pfilt=[profile_name,])
+        profile = profile_dict.get(profile_name)
+        if profile is None:
+            raise exceptions.AccessServerProfileNotFoundError(
+                f'Could not find profile for "{profile_name}"'
+            )
+        return Profile(**profile)
+
+
+    def _create_profile(
+        self,
+        profile_name: str,
+        profile: Profile=None,
+        **properties
+    ) -> Profile:
+        """Create a userprop profile on the server using the profile provided
+
+        Args:
+            profile_name (str): Name of the record to insert
+            profile (Profile, optional): The profile to create. Default is None
+            **properties: Any additional properties to set on the target. These 
+                will take precedence over any properties defined in the profile
+
+        Returns:
+            Profile: The profile that was created
+
+        Raises:
+            AccessServerProfileExistsError: profile provided already exists as
+                either a user or a group
+        """
+        if profile is not None and not isinstance(profile, Profile):
+            raise TypeError(
+                f"Expected 'Profile' for arg 'profile', got '{type(profile)}'"
+            )
+        # Check for existence of profile
+        try:
+            self._get_profile(profile_name)
+        except exceptions.AccessServerProfileNotFoundError:
+            pass
+        else:
+            raise exceptions.AccessServerProfileExistsError(
+                f'Profile for "{profile_name}" already exists on the server'
+            )
+
+        # Resolve the properties we need to add to the profile
+        if profile is None:
+            new_props = properties
+        else:
+            new_props = {}
+            keys = set(list(properties.keys()) + list(profile.props.keys()))
+            for k in keys:
+                if k in properties:
+                    new_props[k] = properties[k]
+                else:
+                    new_props[k] = profile.props[k]
+
+        # Create new profile object (checks integrity of attributes)
+        new_profile = Profile(new_props)
+
+        # Are we required to hide the user from the Admin UI?
+        hide = new_profile.type == Profile.USER_CONNECT_HIDDEN
+        
+        try:
+            # Set properties required on the new profile
+            # Profile will always contain at least the type of user
+            for key, value in new_profile.props.items():
+                logger.debug(
+                    f'Setting property "{key}" on profile "{profile_name}"'
+                )
+                self._sacli.UserPropPut(profile_name, key, value, hide)
+
+        except (
+            pyovpn_as.api.exceptions.ApiClientBaseException,
+            exceptions.AccessServerClientExistsError
+        ) as api_err:
+            logger.error(
+                f'Could not create profile "{profile_name}", '
+                'aborting and deleting profile...'
+            )
+            self._sacli.UserPropDelAll(profile_name)
+            raise exceptions.AccessServerProfileCreateError(
+                'Encountered an issue when setting properties on new profile'
+            ) from api_err
+        else:
+            logger.debug(f'Fetching created profile for return...')
+            return self._get_profile(profile_name)
+        

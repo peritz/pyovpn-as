@@ -9,22 +9,36 @@ import pyovpn_as.api.exceptions
 from pyovpn_as.api import cli
 
 from . import exceptions, utils
-from .profile import GroupProfile, UserProfile
+from .profile import GroupProfile, UserProfile, ProfileOperations
 
 logger = logging.getLogger(__name__)
 
-class UserOperations:
+class UserOperations(ProfileOperations):
     """Represents the operations we can perform on a given user.
 
     This class shouldn't be instantiated directly, and instead you should
     access it via AccessServerManagementClient.users.
 
+    This class inherits the methods and attributes from ProfileOperations.
+
     Args:
         sacli (cli.RemoteSacli): The client we use to communicate with the
             server
     """
-    def __init__(self, sacli: cli.RemoteSacli, *args, **kwargs):
-        self.__sacli = sacli
+    @staticmethod
+    def _resolve_username(user: Union[str, UserProfile]) -> str:
+        """Takes a string or UserProfile argument and serialize to a username
+
+        Args:
+            user (Union[str, UserProfile]): User to get username for
+
+        Returns:
+            str: user.username if isinstance(user), user otherwise
+        """
+        if isinstance(user, UserProfile):
+            return user.username
+        else:
+            return user
 
 
     @utils.debug_log_call()
@@ -44,27 +58,20 @@ class UserOperations:
         Returns:
             UserProfile: A dictionary representing the fetched user
         """
-        if isinstance(user, UserProfile):
-            username = user.username
-        else:
-            username = user
+        username = self._resolve_username(user)
 
-        user_dict = self.__sacli.UserPropGet(pfilt=[username,])
-        profile = user_dict.get(username)
-        if profile is None:
-            raise exceptions.AccessServerProfileNotFoundError(
-                f'Could not find profile for "{username}"'
-            )
-        elif profile.get('type') == 'group':
+        profile = self._get_profile(username)
+        
+        if profile.type == 'group':
             raise exceptions.AccessServerProfileExistsError(
                 f'"{username}" is the name of a group, not a user'
             )
         else:
-            return UserProfile(username, **profile)
+            return UserProfile(username, profile)
 
 
     @utils.debug_log_call(redact=[2, 'password'])
-    def create_new_user(
+    def create_user(
         self,
         user: Union[str, UserProfile],
         password: str=None,
@@ -130,28 +137,19 @@ class UserOperations:
         TODO explicitly define default behaviour of server in docstring
         TODO Fetch group name from user profile
         TODO tests
+        TODO only raise error for local auth if pass not present (in prof too)
         """
         # We're going to be creating a user with a local password
         # Local Auth must therefore be enabled
-        if not self.__sacli.LocalAuthEnabled():
+        if not self._sacli.LocalAuthEnabled():
             raise exceptions.AccessServerConfigError(
                 'Creating a user with local password requires local auth to be '
                 'enabled on the server'
             )
 
-        if isinstance(user, UserProfile):
-            username = user.username
-        else:
-            username = user
-
-        # 1. Check for existence of user
-        profile_dict = self.__sacli.UserPropGet(pfilt=[username,])
-        if profile_dict.get(username) is not None:
-            raise exceptions.AccessServerProfileExistsError(
-                f'Profile for "{username}" already exists on the server'
-            )
+        username = self._resolve_username(user)
         
-        # 2. If there is a group specified, check that it exists
+        # If there is a group specified, check that it exists
         if isinstance(group, GroupProfile):
             group_name = group.group_name
         else:
@@ -162,22 +160,23 @@ class UserOperations:
                 raise TypeError(
                     f"Expected str for arg 'group', got {type(group_name)}"
                 )
-            profile_dict = self.__sacli.UserPropGet(pfilt=[group_name,])
-            if profile_dict.get(group_name) is None:
+            try:
+                group_profile = self._get_profile(group_name)
+            except exceptions.AccessServerProfileNotFoundError:
                 raise exceptions.AccessServerProfileNotFoundError(
                     f'Group "{group_name}" does not exist'
                 )
-            if profile_dict.get(group_name).get('type') != 'group':
+            if not group_profile.is_group:
                 raise exceptions.AccessServerProfileExistsError(
                     f'Profile "{group_name}" is not a group'
                 )
             logger.debug(f'Got group "{group_name}"')
 
-        # 3. Collect other parameters
-        param_dict = {}
+        # Collect other parameters
+        properties = {}
         if group_name is not None:
-            param_dict['conn_group'] = group_name
-        params = [
+            properties['conn_group'] = group_name
+        property_list = [
             (p, kwargs.get(p)) for p in (
             'prop_superuser',
             'prop_autologin',
@@ -186,7 +185,7 @@ class UserOperations:
             'prop_pwd_strength',
             'prop_autogenerate'
         )]
-        for p_name, p_val in params:
+        for p_name, p_val in property_list:
             if p_val is None:
                 continue
             elif not isinstance(p_val, bool):
@@ -194,33 +193,22 @@ class UserOperations:
                     f"Expected bool for arg '{p_name}', got {type(p_val)}"
                 )
             elif p_val:
-                param_dict[p_name] = 'true'
+                properties[p_name] = 'true'
             else:
-                param_dict[p_name] = 'false'
+                properties[p_name] = 'false'
         
-        # 4. Try to create the user and delete profile if any step fails
+        # Try to create the user and delete profile if any step fails
         logger.info(f'Creating user "{username}"')
+        if isinstance(user, UserProfile):
+            new_prof = self._create_profile(username, user, **properties)
+        else:
+            new_prof = self._create_profile(username, **properties)
         try:
-            # Create User
-            self.__sacli.UserPropPut(username, "type", "user_connect")
-            # Create User from profile if we have it
-            if isinstance(user, UserProfile):
-                for key, value in user._attrs.items():
-                    logger.debug(
-                        f'Setting property "{key}" on profile "{username}"'
-                    )
-                    self.__sacli.UserPropPut(username, key, value)
-            # Now set any additional values we've defined from the kwargs 
-            for key, value in param_dict.items():
-                logger.debug(
-                    f'Setting property "{key}" on profile "{username}"'
-                )
-                self.__sacli.UserPropPut(username, key, value)
             if password is not None:
                 logger.debug(f'Setting password on profile "{username}"')
                 try:
                     # Password complexity checked here
-                    self.__sacli.SetLocalPassword(
+                    self._sacli.SetLocalPassword(
                         username, password, ''
                     )
                 except pyovpn_as.api.exceptions.ApiClientParameterError \
@@ -230,32 +218,31 @@ class UserOperations:
                         ' manually using SHA256 hash'
                     )
                     # Password complexity checks need to be done manually
-                    if self.__sacli.is_password_complex(password):
+                    # Remember we need to keep the profile hidden if it is 
+                    # already hidden
+                    if self._sacli.is_password_complex(password):
                         sha = hashlib.sha256(password.encode())
-                        self.__sacli.UserPropPut(
+                        hide = new_prof.type == UserProfile.USER_CONNECT_HIDDEN
+                        self._sacli.UserPropPut(
                             username, 'pvt_password_digest',
-                            sha.hexdigest()
+                            sha.hexdigest(), hide
                         )
             if generate_client:
                 self.create_client_for_user(username)
         except (
-            pyovpn_as.api.exceptions.ApiClientBaseException,
-            exceptions.AccessServerClientExistsError
+            pyovpn_as.api.exceptions.ApiClientBaseException
         ) as api_err:
             logger.error(
                 f'Could not create profile "{username}", '
                 'aborting and deleting profile...'
             )
-            self.__sacli.UserPropDelAll(username)
+            self._sacli.UserPropDelAll(username)
             raise exceptions.AccessServerProfileCreateError(
                 'Encountered an issue when setting properties on new user'
             ) from api_err
         else:
             logger.debug(f'Fetching created profile for return...')
-            profile_dict = self.__sacli.UserPropGet(pfilt=[username,])
-            profile = profile_dict.get(username)
-            assert profile is not None
-            return UserProfile(username, **profile)
+            return self.get_user(username)
 
 
     @utils.debug_log_call()
@@ -270,24 +257,21 @@ class UserOperations:
             AccessServerClientExistsError: A client record for the given user
                 already exists
         """
-        if isinstance(user, UserProfile):
-            username = user.username
-        else:
-            username = user
+        username = self._resolve_username(user)
 
         # 1. Verify we are creating a client for an existing user
         self.get_user(username)
 
         # 2. Check if there is already an existing client
-        existing_clients = self.__sacli.EnumClients()
+        existing_clients = self._sacli.EnumClients()
         if username in existing_clients:
             raise exceptions.AccessServerClientExistsError(
                 f'Client record already exists for "{username}"'
             )
         
         # 3. Create client config and validate it exists
-        self.__sacli.AutoGenerateOnBehalfOf(username)
-        new_existing_clients = self.__sacli.EnumClients()
+        self._sacli.AutoGenerateOnBehalfOf(username)
+        new_existing_clients = self._sacli.EnumClients()
         if username not in new_existing_clients:
             raise exceptions.AccessServerClientCreateError(
                 f'Creation of client record for "{username}" failed for an '
@@ -312,29 +296,26 @@ class UserOperations:
             AccessServerProfileExistsError: username supplied is name of group
                 profile
         """
-        if isinstance(user, UserProfile):
-            username = user.username
-        else:
-            username = user
+        username = self._resolve_username(user)
 
         # 1. Check that the user exists
-        profile_dict = self.__sacli.UserPropGet(pfilt=[username,])
-        if profile_dict.get(username) is None:
-            raise exceptions.AccessServerProfileNotFoundError(
-                f'User "{username}" does not exist'
-            )
-        elif profile_dict.get(username)['type'] == 'group':
+        profile = self.get_user(username)
+        
+        if profile.is_group:
             raise exceptions.AccessServerProfileExistsError(
                 f'Profile "{username}" is a group, not a user'
             )
         
         # 2. Delete the user and revoke certs
-        self.__sacli.RevokeUser(username)
-        self.__sacli.UserPropDelAll(username)
+        self.revoke_user_certificates(username)
+        self._sacli.UserPropDelAll(username)
 
         # 3. Check that the profile is deleted
-        profile_dict = self.__sacli.UserPropGet(pfilt=[username,])
-        if profile_dict.get(username) is not None:
+        try:
+            self._get_profile(username)
+        except exceptions.AccessServerProfileNotFoundError:
+            return
+        else:
             raise exceptions.AccessServerProfileDeleteError(
                 f'Could not delete profile "{username}" for an unknown reason'
             )
@@ -360,16 +341,13 @@ class UserOperations:
             str: The unified connection profile for the given user requiring an
                 interactive login
         """
-        if isinstance(user, UserProfile):
-            username = user.username
-        else:
-            username = user
+        username = self._resolve_username(user)
             
         # Validate user exists before fetching their config
         self.get_user(username)
 
         # Use Get1 to prevent config being created in case of not existing
-        config = self.__sacli.Get1(username)
+        config = self._sacli.Get1(username)
         if config is None:
             raise exceptions.AccessServerProfileNotFoundError(
                 f'Connection profile for user "{username}" could not be found '
@@ -396,13 +374,10 @@ class UserOperations:
             AccessServerProfileExistsError: Username provided is the name of a
                 group, not a user
         """
-        if isinstance(user, UserProfile):
-            username = user.username
-        else:
-            username = user
+        username = self._resolve_username(user)
 
         # Validate user exists
         self.get_user(username)
 
         # Revoke all certs
-        self.__sacli.RevokeUser(username)
+        self._sacli.RevokeUser(username)
