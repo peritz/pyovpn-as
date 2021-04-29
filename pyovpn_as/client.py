@@ -10,6 +10,7 @@ from . import utils
 from .api import cli
 from .api import exceptions
 from .users import UserOperations
+from .groups import GroupOperations
 
 
 logger = logging.getLogger(__name__)
@@ -56,7 +57,6 @@ class AccessServerManagementClient:
         self.__password = password
         self.__debug = kwargs.get('debug', False)
         self.__allow_untrusted = kwargs.get('allow_untrusted', False)
-    
 
     def _get_sacli(self) -> cli.RemoteSacli:
         """Create and return a RemoteSacli object which can be used to make
@@ -80,6 +80,15 @@ class AccessServerManagementClient:
         on and with regards to users
         """
         return UserOperations(
+            self._get_sacli()
+        )
+
+    @property
+    def groups(self) -> GroupOperations:
+        """GroupOperations: an object representing the operations we can
+        perform on and with regards to groups
+        """
+        return GroupOperations(
             self._get_sacli()
         )
 
@@ -267,7 +276,8 @@ def from_file(filepath: os.PathLike) -> AccessServerManagementClient:
         ApiClientConfigurationError: JSON configuration was invalid in some way
 
     Returns:
-        AccessServerManagementClient: The client configured using the above options
+        AccessServerManagementClient: The client configured using the above 
+            options
     """
     with open(filepath) as config_file:
         config = json.loads(config_file.read())
