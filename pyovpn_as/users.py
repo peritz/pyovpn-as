@@ -1,15 +1,15 @@
 """This module provides the UserOperations class which allows us to define 
 high-level functionality for managing users on the sacli server
 """
-from pyovpn_as.api import cli
-import logging
-from typing import Any
 import hashlib
+import logging
+from typing import Any, Union
 
 import pyovpn_as.api.exceptions
+from pyovpn_as.api import cli
 
-from . import exceptions
-from . import utils
+from . import exceptions, utils
+from .profile import GroupProfile, UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -29,12 +29,12 @@ class UserOperations:
 
     @utils.debug_log_call()
     def get_user(
-        self, username: str
-    ) -> dict[str, Any]:
+        self, user: Union[str, UserProfile]
+    ) -> UserProfile:
         """Retrieves a user from the server using the specified client
 
         Args:
-            username (str): The user to fetch
+            user (Union[str, UserProfile]): The user to fetch
 
         Raises:
             AccessServerProfileNotFoundError: Profile does not exist
@@ -42,8 +42,13 @@ class UserOperations:
                 group, not a user
 
         Returns:
-            dict[str, Any]: A dictionary representing the fetched user
+            UserProfile: A dictionary representing the fetched user
         """
+        if isinstance(user, UserProfile):
+            username = user.username
+        else:
+            username = user
+
         user_dict = self.__sacli.UserPropGet(pfilt=[username,])
         profile = user_dict.get(username)
         if profile is None:
@@ -55,23 +60,18 @@ class UserOperations:
                 f'"{username}" is the name of a group, not a user'
             )
         else:
-            return profile
+            return UserProfile(username, **profile)
 
 
     @utils.debug_log_call(redact=[2, 'password'])
     def create_new_user(
         self,
-        username: str,
+        user: Union[str, UserProfile],
         password: str=None,
-        group: str=None,
+        group: Union[str, GroupProfile]=None,
         generate_client: bool=True,
-        prop_superuser: bool=None,
-        prop_autologin: bool=None,
-        prop_deny: bool=None,
-        prop_pwd_change: bool=None,
-        prop_pwd_strength: bool=None,
-        prop_autogenerate: bool=None
-    ) -> dict[str, Any]:
+        **kwargs
+    ) -> UserProfile:
         """Creates a user with the given parameters
 
         This function will check if the given user exists, and if not will 
@@ -79,36 +79,42 @@ class UserOperations:
         parameter set, we will make another call to UserPropPut, deleting the 
         user if any errors occur in the process.
 
+        We can pass a UserProfile if we wish, but any arguments we pass after 
+        that will overwrite any properties set in the UserProfile
+
         Args:
-            username (str): Username of the user to create
+            user (Union[str, UserProfile]): Username of the user to create,
+                or a UserProfile object representing the user to create
             password (str, optional): Password to set for user. If None, no
                 password will be set. Must adhere to complexity requirements.
                 Defaults to None.
-            group (str, optional): A default group to assign the user to. If 
-                set, this user will inherit all options that apply to the given 
-                group. Will raise an error if group does not exist. Defaults to 
-                None.
+            group (Union[str, GroupProfile], optional): A connection group to
+                assign the user to. If set, this user will inherit all options 
+                that apply to the given group. Will raise an error if group 
+                does not exist. Defaults to None. Can be a group profile or a 
+                string
             generate_client (bool, optional): Whether or not to generate a
                 certificate and openvpn client configuration file for this user.
                 Users cannot connect to the VPN unless this is set to true (or a
                 cert is generated later for them). Defaults to True. 
-            prop_superuser (bool, optional): Whether or not to explicitly make
-                this user an administrator. Defaults to None.
-            prop_autologin (bool, optional): Whether or not to explicitly allow
-                this user to connect without a username and password. Defaults
-                to None.
-            prop_deny (bool, optional): Explicitly deny access to the user.
-                Defaults to None.
-            prop_pwd_change (bool, optional): Whether or not to
-                explicitly allow the user to change their password using the
-                WebUI. Defaults to None.
-            prop_pwd_strength (bool, optional): Whether or not to
-                explicitly check the complexity of this user's password when
-                they try to change it in the WebUI. Defaults to None.
-            prop_autogenerate (bool, optional): Whether or not to prevent the
-                server from automatically regenerating user connection profiles 
-                (client records) when they don't exist (e.g. revoked) on the 
-                server.Defaults to None
+            **kwargs:
+                prop_superuser (bool, optional): Whether or not to explicitly 
+                    make this user an administrator. Defaults to None.
+                prop_autologin (bool, optional): Whether or not to explicitly 
+                    allow this user to connect without a username and password. 
+                    Defaults to None.
+                prop_deny (bool, optional): Explicitly deny access to the user. 
+                    Defaults to None.
+                prop_pwd_change (bool, optional): Whether or not to explicitly 
+                    allow the user to change their password using the WebUI. 
+                    Defaults to None.
+                prop_pwd_strength (bool, optional): Whether or not to
+                    explicitly check the complexity of this user's password when
+                    they try to change it in the WebUI. Defaults to None.
+                prop_autogenerate (bool, optional): Whether or not to prevent 
+                    the server from automatically regenerating user connection 
+                    profiles (client records) when they don't exist (e.g. 
+                    revoked) on the server. Defaults to None
 
         Raises:
             AccessServerProfileExistsError: username provided already exists as
@@ -118,10 +124,12 @@ class UserOperations:
             ApiClientPasswordComplexityError: Password is not complex enough
 
         Returns:
-            dict[str, Any]: A dictionary representing the user just created
+            UserProfile: A profile representing the user just created
 
         TODO Add parameter to hide profile in ui
         TODO explicitly define default behaviour of server in docstring
+        TODO Fetch group name from user profile
+        TODO tests
         """
         # We're going to be creating a user with a local password
         # Local Auth must therefore be enabled
@@ -131,6 +139,11 @@ class UserOperations:
                 'enabled on the server'
             )
 
+        if isinstance(user, UserProfile):
+            username = user.username
+        else:
+            username = user
+
         # 1. Check for existence of user
         profile_dict = self.__sacli.UserPropGet(pfilt=[username,])
         if profile_dict.get(username) is not None:
@@ -139,26 +152,33 @@ class UserOperations:
             )
         
         # 2. If there is a group specified, check that it exists
-        if group is not None:
-            if not isinstance(group, str):
+        if isinstance(group, GroupProfile):
+            group_name = group.group_name
+        else:
+            group_name = group
+
+        if group_name is not None:
+            if not isinstance(group_name, str):
                 raise TypeError(
-                    f"Expected str for arg 'group', got {type(group)}"
+                    f"Expected str for arg 'group', got {type(group_name)}"
                 )
-            profile_dict = self.__sacli.UserPropGet(pfilt=[group,])
-            if profile_dict.get(group) is None:
+            profile_dict = self.__sacli.UserPropGet(pfilt=[group_name,])
+            if profile_dict.get(group_name) is None:
                 raise exceptions.AccessServerProfileNotFoundError(
-                    f'Group "{group}" does not exist'
+                    f'Group "{group_name}" does not exist'
                 )
-            if profile_dict.get(group).get('type') != 'group':
+            if profile_dict.get(group_name).get('type') != 'group':
                 raise exceptions.AccessServerProfileExistsError(
-                    f'Profile "{group}" is not a group'
+                    f'Profile "{group_name}" is not a group'
                 )
-            logger.debug(f'Got group "{group}"')
+            logger.debug(f'Got group "{group_name}"')
 
         # 3. Collect other parameters
         param_dict = {}
+        if group_name is not None:
+            param_dict['conn_group'] = group_name
         params = [
-            (p, locals().get(p)) for p in (
+            (p, kwargs.get(p)) for p in (
             'prop_superuser',
             'prop_autologin',
             'prop_deny',
@@ -183,6 +203,14 @@ class UserOperations:
         try:
             # Create User
             self.__sacli.UserPropPut(username, "type", "user_connect")
+            # Create User from profile if we have it
+            if isinstance(user, UserProfile):
+                for key, value in user._attrs.items():
+                    logger.debug(
+                        f'Setting property "{key}" on profile "{username}"'
+                    )
+                    self.__sacli.UserPropPut(username, key, value)
+            # Now set any additional values we've defined from the kwargs 
             for key, value in param_dict.items():
                 logger.debug(
                     f'Setting property "{key}" on profile "{username}"'
@@ -227,51 +255,56 @@ class UserOperations:
             profile_dict = self.__sacli.UserPropGet(pfilt=[username,])
             profile = profile_dict.get(username)
             assert profile is not None
-            return profile
+            return UserProfile(username, **profile)
 
 
     @utils.debug_log_call()
-    def create_client_for_user(self, user: str) -> None:
+    def create_client_for_user(self, user: Union[str, UserProfile]) -> None:
         """Creates a new client record for a given user, or raises an error if 
         one exists
 
         Args:
-            user (str): Username to generate the client for
+            user (Union[str, UserProfile]): User to generate the client for
 
         Raises:
             AccessServerClientExistsError: A client record for the given user
                 already exists
         """
+        if isinstance(user, UserProfile):
+            username = user.username
+        else:
+            username = user
+
         # 1. Verify we are creating a client for an existing user
-        self.get_user(user)
+        self.get_user(username)
 
         # 2. Check if there is already an existing client
         existing_clients = self.__sacli.EnumClients()
-        if user in existing_clients:
+        if username in existing_clients:
             raise exceptions.AccessServerClientExistsError(
-                f'Client record already exists for "{user}"'
+                f'Client record already exists for "{username}"'
             )
         
         # 3. Create client config and validate it exists
-        self.__sacli.AutoGenerateOnBehalfOf(user)
+        self.__sacli.AutoGenerateOnBehalfOf(username)
         new_existing_clients = self.__sacli.EnumClients()
-        if user not in new_existing_clients:
+        if username not in new_existing_clients:
             raise exceptions.AccessServerClientCreateError(
-                f'Creation of client record for "{user}" failed for an unknown'
-                ' reason. New client not present on server despite no returned '
-                'error'
+                f'Creation of client record for "{username}" failed for an '
+                'unknown reason. New client not present on server despite no '
+                'returned error'
             )
 
 
     @utils.debug_log_call()
     def delete_user(
         self,
-        username: str
+        user: Union[str, UserProfile]
     ) -> None:
         """Deletes a user from the server
 
         Args:
-            username (str): User to delete
+            user (Union[str, UserProfile]): User to delete
 
         Raises:
             AccessServerProfileNotFoundError: User we are trying to delete does
@@ -279,6 +312,11 @@ class UserOperations:
             AccessServerProfileExistsError: username supplied is name of group
                 profile
         """
+        if isinstance(user, UserProfile):
+            username = user.username
+        else:
+            username = user
+
         # 1. Check that the user exists
         profile_dict = self.__sacli.UserPropGet(pfilt=[username,])
         if profile_dict.get(username) is None:
@@ -305,12 +343,12 @@ class UserOperations:
     @utils.debug_log_call()
     def get_user_login_ovpn_config(
         self,
-        username: str
+        user: Union[str, UserProfile]
     ) -> str:
         """Fetches the .ovpn configuration for 
 
         Args:
-            username (str): Username to fetch configuration for
+            user (Union[str, UserProfile]): user to fetch configuration for
 
         Raises:
             AccessServerProfileNotFoundError: User does not have a user/pass
@@ -322,6 +360,11 @@ class UserOperations:
             str: The unified connection profile for the given user requiring an
                 interactive login
         """
+        if isinstance(user, UserProfile):
+            username = user.username
+        else:
+            username = user
+            
         # Validate user exists before fetching their config
         self.get_user(username)
 
@@ -339,12 +382,13 @@ class UserOperations:
     @utils.debug_log_call()
     def revoke_user_certificates(
         self,
-        username: str
+        user: Union[str, UserProfile]
     ) -> None:
         """Revoke all certificates for the given user
 
         Args:
-            username (str): User whose certificates we want to revoke
+            user (Union[str, UserProfile]): User whose certificates we want to 
+                revoke
 
         Raises:
             AccessServerProfileNotFoundError: User does not have a user/pass 
@@ -352,6 +396,11 @@ class UserOperations:
             AccessServerProfileExistsError: Username provided is the name of a
                 group, not a user
         """
+        if isinstance(user, UserProfile):
+            username = user.username
+        else:
+            username = user
+
         # Validate user exists
         self.get_user(username)
 
