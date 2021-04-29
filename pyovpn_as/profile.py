@@ -243,22 +243,37 @@ class UserProfile(Profile):
 
     Args:
         username (str): The name of the user whose profile we are representing
+        profile (Profile, optional): The profile to derive our attributes from.
+            Defaults to None.
         **attrs (dict[str, Any]): The dictionary containing the attributes for a
             profile. This can be fetched from the server with RemoteSacli
-            UserPropGet
+            UserPropGet. Any properties defined here will take precedence over 
+            those defined in the profile argument
 
     Attributes:
         username (str): The name of the user whose profile we are representing
         _attrs (dict[str, Any]): The dictionary containing the attributes for a
             profile provided at ``__init__``
     """
-    def __init__(self, username: str, **attrs):
-        if attrs.get('type') not in self.USER_TYPES:
+    def __init__(self, username: str, profile: Profile=None, **attrs):
+        if profile is not None and not isinstance(profile, Profile):
+            raise TypeError(
+                f"Expected 'Profile' for arg 'profile', got {type(profile)}"
+            )
+        elif profile is not None:
+            props = profile._attrs
+        else:
+            props = {}
+
+        for key, value in attrs.items():
+            props[key] = value
+
+        if props.get('type') not in self.USER_TYPES:
             raise exceptions.AccessServerProfileIntegrityError(
                 f"Value of type property must be one of {self.USER_TYPES} "
                 "for a user profile"
             )
-        super().__init__(**attrs)
+        super().__init__(**props)
         self.username = username
 
 
@@ -274,9 +289,12 @@ class GroupProfile(Profile):
     Args:
         group_name (str): The name of the group whose profile we are
             representing
+        profile (Profile, optional): The profile to derive our attributes from.
+            Defaults to None.
         **attrs (dict[str, Any]): The dictionary containing the attributes for a
             profile. This can be fetched from the server with RemoteSacli
-            UserPropGet
+            UserPropGet. Any properties defined here will take precedence over 
+            those defined in the profile argument
 
     Attributes:
         group_name (str): The name of the group whose profile we are
@@ -284,14 +302,26 @@ class GroupProfile(Profile):
         _attrs (dict[str, Any]): The dictionary containing the attributes for a
             profile provided at ``__init__``
     """
-    def __init__(self, group_name, **attrs):
-        if attrs.get('type') != self.GROUP:
+    def __init__(self, group_name: str, profile: Profile, **attrs):
+        if profile is not None and not isinstance(profile, Profile):
+            raise TypeError(
+                f"Expected 'Profile' for arg 'profile', got {type(profile)}"
+            )
+        elif profile is not None:
+            props = profile._attrs
+        else:
+            props = {}
+
+        for key, value in attrs.items():
+            props[key] = value
+
+        if props.get('type') != self.GROUP:
             raise exceptions.AccessServerProfileIntegrityError(
                 f"Value of type for a group must be '{self.GROUP}'"
             )
-        elif attrs.get('group_declare', '').lower() != 'true':
+        elif props.get('group_declare', '').lower() != 'true':
             raise exceptions.AccessServerProfileIntegrityError(
                 'Value of group_declare must be true for a group'
             )
-        super().__init__(**attrs)
+        super().__init__(**props)
         self.group_name = group_name
