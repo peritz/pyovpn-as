@@ -9,6 +9,7 @@ import urllib.parse
 from . import utils
 from .api import cli
 from .api import exceptions
+from .users import UserOperations
 
 
 logger = logging.getLogger(__name__)
@@ -71,6 +72,15 @@ class AccessServerManagementClient:
             self.__password,
             self.__debug,
             self.__allow_untrusted
+        )
+
+    @property
+    def users(self) -> UserOperations:
+        """UserOperations: an object representing the operations we can perform 
+        on and with regards to users
+        """
+        return UserOperations(
+            self._get_sacli()
         )
 
 
