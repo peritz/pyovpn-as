@@ -374,6 +374,11 @@ class UserProfile(Profile):
         # __setattr__ issues, see Profile class
         object.__setattr__(self, 'username', username)
 
+
+    def __str__(self):
+        """Username of the profile"""
+        return self.username
+
     
     def __setattr__(self, key: str, value: Any):
         """Prevent setting an attribute that would cause the profile to become 
@@ -443,6 +448,11 @@ class GroupProfile(Profile):
             )
         # __setattr__ issues, see Profile class
         object.__setattr__(self, 'group_name', group_name)
+
+
+    def __str__(self):
+        """Returns the group name of the profile"""
+        return self.group_name
 
     
     def __setattr__(self, key: str, value: Any):

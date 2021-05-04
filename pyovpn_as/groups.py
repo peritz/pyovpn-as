@@ -23,22 +23,6 @@ class GroupOperations(ProfileOperations):
         sacli (cli.RemoteSacli): The client we use to communicate with the
             server
     """
-    @staticmethod
-    def _resolve_group_name(group: Union[str, GroupProfile]) -> str:
-        """Takes a string or GroupProfile argument and serialize to a group_name
-
-        Args:
-            group (Union[str, GroupProfile]): group to get group_name for
-
-        Returns:
-            str: group.group_name if isinstance(group), group otherwise
-        """
-        if isinstance(group, GroupProfile):
-            return group.group_name
-        else:
-            return group
-
-
     @utils.debug_log_call()
     def get_group(
         self, group: Union[str, GroupProfile]
@@ -56,7 +40,7 @@ class GroupOperations(ProfileOperations):
         Returns:
             GroupProfile: A profile representing the fetched group
         """
-        groupname = self._resolve_group_name(group)
+        groupname = str(group)
 
         profile = self._get_profile(groupname)
         
@@ -86,7 +70,7 @@ class GroupOperations(ProfileOperations):
             GroupProfile: The profile we have just created
         """
         # Merge properties into one profile and create the profile
-        group_name = self._resolve_group_name(group)
+        group_name = str(group)
         properties = kwargs
         properties['group_declare'] = 'true'
         if isinstance(group, GroupProfile):
@@ -122,7 +106,7 @@ class GroupOperations(ProfileOperations):
             AccessServerProfileDeleteError: Could not delete the profile for
                 an unknown reason
         """
-        group_name = self._resolve_group_name(group)
+        group_name = str(group)
         self.get_group(group_name)
         self._delete_profile(group_name)
 
@@ -143,7 +127,7 @@ class GroupOperations(ProfileOperations):
             AccessServerProfileExistsError: group provided is the name of a
                 group, not a user
         """
-        group_name = self._resolve_group_name(group)
+        group_name = str(group)
         self.get_group(group_name)
         self._ban_profile(group_name)
 

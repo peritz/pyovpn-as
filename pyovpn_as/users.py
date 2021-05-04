@@ -24,22 +24,6 @@ class UserOperations(ProfileOperations):
         sacli (cli.RemoteSacli): The client we use to communicate with the
             server
     """
-    @staticmethod
-    def _resolve_username(user: Union[str, UserProfile]) -> str:
-        """Takes a string or UserProfile argument and serialize to a username
-
-        Args:
-            user (Union[str, UserProfile]): User to get username for
-
-        Returns:
-            str: user.username if isinstance(user), user otherwise
-        """
-        if isinstance(user, UserProfile):
-            return user.username
-        else:
-            return user
-
-
     @utils.debug_log_call()
     def get_user(
         self, user: Union[str, UserProfile]
@@ -57,7 +41,7 @@ class UserOperations(ProfileOperations):
         Returns:
             UserProfile: A dictionary representing the fetched user
         """
-        username = self._resolve_username(user)
+        username = str(user)
 
         profile = self._get_profile(username)
         
@@ -146,7 +130,7 @@ class UserOperations(ProfileOperations):
                 'enabled on the server'
             )
 
-        username = self._resolve_username(user)
+        username = str(user)
         
         # If there is a group specified, check that it exists
         if isinstance(group, GroupProfile):
@@ -255,7 +239,7 @@ class UserOperations(ProfileOperations):
             AccessServerClientExistsError: A client record for the given user
                 already exists
         """
-        username = self._resolve_username(user)
+        username = str(user)
 
         # 1. Verify we are creating a client for an existing user
         self.get_user(username)
@@ -296,7 +280,7 @@ class UserOperations(ProfileOperations):
             AccessServerProfileDeleteError: Could not delete the profile for
                 an unknown reason
         """
-        username = self._resolve_username(user)
+        username = str(user)
         # Check user exists and is a user
         self.get_user(username)
         
@@ -325,7 +309,7 @@ class UserOperations(ProfileOperations):
             str: The unified connection profile for the given user requiring an
                 interactive login
         """
-        username = self._resolve_username(user)
+        username = str(user)
             
         # Validate user exists before fetching their config
         self.get_user(username)
@@ -358,7 +342,7 @@ class UserOperations(ProfileOperations):
             AccessServerProfileExistsError: Username provided is the name of a
                 group, not a user
         """
-        username = self._resolve_username(user)
+        username = str(user)
 
         # Validate user exists
         self.get_user(username)
@@ -382,7 +366,7 @@ class UserOperations(ProfileOperations):
             AccessServerProfileExistsError: Username provided is the name of a
                 group, not a user
         """
-        username = self._resolve_username(user)
+        username = str(user)
         self.get_user(username)
         self._ban_profile(username)
 
@@ -428,7 +412,7 @@ class UserOperations(ProfileOperations):
             int: The number of connections that were killed
         """
         self.get_user(user)
-        username = self._resolve_username(user)
+        username = str(user)
         num_disconnected = self._sacli.DisconnectUser(
             username, reason=reason, client_reason=reason
         )
