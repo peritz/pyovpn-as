@@ -76,3 +76,12 @@ class AccessServerConfigError(AccessServerBaseException):
 class AccessServerProfileIntegrityError(AccessServerBaseException):
     """Raised when a profile contains a value that wasn't expected. E.g. when the ``type`` property contains anything other than the defined types.
     """
+    pass
+
+
+class AccessServerPropOverwriteError(AccessServerProfileIntegrityError):
+    """Raised when one attempts to overwrite a critical profile property that 
+    already has a value on the server (e.g. trying to add a user to a group 
+    when they are already a part of another group)
+    """
+    pass

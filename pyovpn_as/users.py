@@ -3,6 +3,7 @@ high-level functionality for managing users on the sacli server
 """
 import hashlib
 import logging
+from pyovpn_as.groups import GroupOperations
 from typing import Union
 
 import pyovpn_as.api.exceptions
@@ -419,3 +420,53 @@ class UserOperations(ProfileOperations):
         if force:
             self.ban_user(username)
         return num_disconnected
+
+    
+    @utils.debug_log_call()
+    def add_user_to_group(
+        self,
+        user: Union[str, UserProfile],
+        group: Union[str, GroupProfile],
+        force_overwrite: bool=False
+    ) -> None:
+        """Add a given user to the given group by setting the conn_group 
+        property on the user
+
+        Args:
+            user (Union[str, UserProfile]): User to add to the group
+            group (Union[str, GroupProfile]): Group to add the user to
+            force_overwrite (bool): Add a user to the new group even if they 
+                are already a part of another group
+
+        Raises:
+            AccessServerProfileNotFoundError: If either the group or user does 
+                not exist
+            AccessServerProfileExistsError: If either the group or user names 
+                are not names of what they are meant to represent, ie user is 
+                actually a group and vice versa
+            AccessServerPropOverwriteError: User is already part of a group, 
+                and the force_overwrite option is not True
+        """
+        username = str(user)
+        group_name = str(group)
+
+        user_profile = self.get_user(username)
+        group_operations = GroupOperations(self._sacli)
+        group_operations.get_group(group_name)
+        try:
+            logger.warning(
+                f"User '{username}' has conn_group='{user_profile.conn_group}'"
+            )
+        except AttributeError:
+            pass
+        else:
+            if not force_overwrite:
+                raise exceptions.AccessServerPropOverwriteError(
+                    f"User '{username}' is already part of the group "
+                    f"'{user_profile.conn_group}'. Remove the user from this "
+                    "group or call this method with force_overwrite=True"
+                )
+
+        self._sacli.UserPropPut(
+            username, 'conn_group', group_name, user_profile.is_hidden
+        )
