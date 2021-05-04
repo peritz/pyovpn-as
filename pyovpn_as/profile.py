@@ -7,10 +7,6 @@ Some notes on profiles:
 * Passing noui as True to UserPropPut does not change anything if
     * ``type`` is ``user_compile`` (due to prop_superuser being set)
     * ``group_declare`` is True
-
-TODO Prevent setting group_declare true on a UserProfile and false on a 
-GroupProfile
-TODO conduct special properties type checks within profile creation
 """
 from pyovpn_as.api import cli
 import pyovpn_as.api.exceptions
@@ -67,11 +63,10 @@ class Profile:
     )
 
     def __init__(self, **attrs):
-        for key in attrs:
-            if not isinstance(key, str):
+        for key, value in attrs.items():
+            if not isinstance(key, str) or not isinstance(value, str):
                 raise TypeError(
-                    'Attributes for a profile must have keys that are all '
-                    'strings'
+                    'All property keys and values must be strings'
                 )
         # Set attributes using Python magic to avoid issues in self.__setattr__
         # We set it twice, once so it is recognised in self.__setattr__ and 
