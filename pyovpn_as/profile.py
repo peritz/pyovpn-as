@@ -348,6 +348,10 @@ class UserProfile(Profile):
             profile. This can be fetched from the server with RemoteSacli
             UserPropGet. Any properties defined here will take precedence over 
             those defined in the profile argument
+    
+    Raises:
+        AccessServerProfileIntegrityError: Properties passed do not match a
+            UserProfile
 
     Attributes:
         username (str): The name of the user whose profile we are representing
@@ -374,6 +378,29 @@ class UserProfile(Profile):
             )
         # __setattr__ issues, see Profile class
         object.__setattr__(self, 'username', username)
+
+    
+    def __setattr__(self, key: str, value: Any):
+        """Prevent setting an attribute that would cause the profile to become 
+        a group profile
+
+        Args:
+            key (str): Name of the attribute to set
+            value (Any): Value to set the attribute to
+
+        Raises:
+            AccessServerProfileIntegrityError: Tried to set a property that
+                would cause the profile to become a group
+        """
+        if (
+            key == 'group_declare'
+            and str(value).lower() == 'true'
+        ):
+            raise exceptions.AccessServerProfileIntegrityError(
+                'Attempt made to set group_declare to a true value on a '
+                'UserProfile. This is an illegal operation.'
+            )
+        super().__setattr__(key, value)
 
 
 
@@ -421,6 +448,30 @@ class GroupProfile(Profile):
             )
         # __setattr__ issues, see Profile class
         object.__setattr__(self, 'group_name', group_name)
+
+    
+    def __setattr__(self, key: str, value: Any):
+        """Prevent setting an attribute that would cause the profile to become 
+        a user profile
+
+        Args:
+            key (str): Name of the attribute to set
+            value (Any): Value to set the attribute to
+
+        Raises:
+            AccessServerProfileIntegrityError: Tried to set a property that
+                would cause the profile to become a user
+        """
+        if (
+            key == 'group_declare'
+            and str(value).lower() != 'true'
+        ):
+            raise exceptions.AccessServerProfileIntegrityError(
+                'Attempt made to set group_declare to a false value on a '
+                'GroupProfile. This is an illegal operation.'
+            )
+        super().__setattr__(key, value)
+
 
 
 class ProfileOperations:
