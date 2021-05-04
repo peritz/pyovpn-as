@@ -375,6 +375,12 @@ class UserProfile(Profile):
         object.__setattr__(self, 'username', username)
 
 
+    @property
+    def has_group(self):
+        """bool: Whether or not ``conn_group`` is set"""
+        return self.props.get('conn_group') is not None
+
+
     def __str__(self):
         """Username of the profile"""
         return self.username

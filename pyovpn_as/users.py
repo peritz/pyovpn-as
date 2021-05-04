@@ -453,20 +453,41 @@ class UserOperations(ProfileOperations):
         user_profile = self.get_user(username)
         group_operations = GroupOperations(self._sacli)
         group_operations.get_group(group_name)
-        try:
-            logger.warning(
-                f"User '{username}' has conn_group='{user_profile.conn_group}'"
+        if user_profile.has_group and not force_overwrite:
+            raise exceptions.AccessServerPropOverwriteError(
+                f"User '{username}' is already part of the group "
+                f"'{user_profile.conn_group}'. Remove the user from this "
+                "group or call this method with force_overwrite=True"
             )
-        except AttributeError:
-            pass
-        else:
-            if not force_overwrite:
-                raise exceptions.AccessServerPropOverwriteError(
-                    f"User '{username}' is already part of the group "
-                    f"'{user_profile.conn_group}'. Remove the user from this "
-                    "group or call this method with force_overwrite=True"
-                )
+        elif user_profile.has_group: # and force_overwrite
+            logger.warning(
+                f"User '{username}' has conn_group='{user_profile.conn_group}',"
+                " overwriting with new group..."
+            )
 
         self._sacli.UserPropPut(
             username, 'conn_group', group_name, user_profile.is_hidden
         )
+
+
+    @utils.debug_log_call()
+    def remove_user_from_group(
+        self,
+        user: Union[str, UserProfile]
+    ) -> None:
+        """Remove the given user from the group they are a part of
+
+        Args:
+            user (Union[str, UserProfile]): The user from which to remove from 
+                their group
+
+        Raises:
+            AccessServerProfileNotFoundError: User does not exist on the server.
+            AccessServerProfileExistsError: Username provided is the name of a
+                group, not a user
+        """
+        username = str(user)
+        user_profile = self.get_user(username)
+        if not user_profile.has_group:
+            logger.debug(f'User not a part of a group, nothing has changed')
+        self._sacli.UserPropDel(username, 'conn_group')
