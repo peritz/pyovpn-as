@@ -80,7 +80,8 @@ class Profile:
         self._attrs = attrs
 
         # Now force a profile type resolve
-        self.type = self.USER_CONNECT
+        object.__setattr__(self, 'type', self.USER_CONNECT)
+        self._resolve_type()
 
 
     @property
@@ -279,7 +280,7 @@ class Profile:
         try:
             self.__getattribute__(key)
         except AttributeError:
-            self._attrs[key] = value
+            self._attrs[key] = str(value)
             self._resolve_type()
         else:
             object.__setattr__(self, key, value)
