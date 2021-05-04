@@ -400,3 +400,38 @@ class UserOperations(ProfileOperations):
         return [
             UserProfile(user, **props) for user, props in profile_dict.items()
         ]
+
+    
+    @utils.debug_log_call()
+    def kick_user(
+        self,
+        user: Union[str, UserProfile],
+        reason: str='',
+        force: bool=False
+    ) -> int:
+        """Kick all sessions for a given user and return the number of 
+        connections that were kicked
+
+        Args:
+            user (Union[str, UserProfile]): The user who we want to kick
+            reason (str): The reason to log on the server and to the user for 
+                kicking said user
+            force (bool): Ban a user immediately after disconnecting them, to 
+                prevent clients from attempting to reconnect
+
+        Raises:
+            AccessServerProfileNotFoundError: User does not exist on the server.
+            AccessServerProfileExistsError: Username provided is the name of a
+                group, not a user
+
+        Returns:
+            int: The number of connections that were killed
+        """
+        self.get_user(user)
+        username = self._resolve_username(user)
+        num_disconnected = self._sacli.DisconnectUser(
+            username, reason=reason, client_reason=reason
+        )
+        if force:
+            self.ban_user(username)
+        return num_disconnected
