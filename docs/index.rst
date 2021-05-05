@@ -20,19 +20,23 @@ Getting started is simple. First you must enable the XML-RPC feature on your acc
 
 Now we can start running commands::
 
-   >>> from pyovpn_as import client, auth
+   >>> from pyovpn_as import client
 
-   >>> as_client = client.from_args('https://ovpn.example.org/RPC2/', 'openvpn', 'P4ssw0rd!!!!')
+   >>> mgmt_client = client.from_args('https://ovpn.example.org/RPC2/', 'openvpn', 'P4ssw0rd!!!!')
 
-   >>> auth.create_new_user(as_client, 'newuser', 'P4ssw0rd123£', prop_superuser=True)
-   {
-      'type': 'user_connect',
-      'pvt_password_digest': '286df9a66f...',
-      'prop_superuser': True
-   }
-   >>> auth.delete_user(as_client, '404')
+   >>> new_user = mgmt_client.users.create_new_user('newuser', 'P4ssw0rd123£', prop_superuser=True)
+
+   >>> new_user.type
+
+   "user_connect"
+
+   >>> new_user.is_admin
+
+   True
+
+   >>> mgmt_client.users.delete_user(as_client, '404')
    Traceback (most recent call last):   
-      File "<stdin>", line 1, in <module>
+   File "<stdin>", line 1, in <module>
    AccessServerProfileNotFoundError: User "404" does not exist
 
 **Note:** if you haven't yet installed a trusted SSL certificate on the server, you will need to provide the ``allow_untrusted=True`` parameter anytime you create a client.

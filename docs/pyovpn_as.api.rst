@@ -7,8 +7,6 @@ Submodules
 pyovpn\_as.api.cli module
 -------------------------
 
-.. _AccessServerClient:
-
 .. automodule:: pyovpn_as.api.cli
    :members:
    :undoc-members:
@@ -24,8 +22,6 @@ pyovpn\_as.api.exceptions module
 
 pyovpn\_as.api.rpc module
 -------------------------
-
-.. _RpcClient:
 
 .. automodule:: pyovpn_as.api.rpc
    :members:
