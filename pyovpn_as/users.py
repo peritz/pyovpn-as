@@ -3,13 +3,13 @@ high-level functionality for managing users on the sacli server
 """
 import hashlib
 import logging
-from pyovpn_as.groups import GroupOperations
 from typing import Union
 
 import pyovpn_as.api.exceptions
 
 from . import exceptions, utils
-from .profile import GroupProfile, UserProfile, ProfileOperations
+from .groups import GroupOperations
+from .profile import GroupProfile, ProfileOperations, UserProfile
 
 logger = logging.getLogger(__name__)
 
