@@ -127,6 +127,11 @@
         "returns": "str: Access Server Version"
     },
 
+    "RunStatus": {
+        "params": [],
+        "returns": "dict: The run status of the server's internal services"
+    },
+
     "LocalAuthEnabled": {
         "params": [],
         "returns": "bool: Whether or not Local Authentication is being used/is enabled"
