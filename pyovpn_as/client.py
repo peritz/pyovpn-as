@@ -7,11 +7,11 @@ import os
 import urllib.parse
 
 from . import utils
-from .api import cli
-from .api import exceptions
-from .users import UserOperations
+from .api import cli, exceptions
 from .groups import GroupOperations
-
+from .server import ServerOperations
+from .users import UserOperations
+from .vpn import VpnOperations
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +89,24 @@ class AccessServerManagementClient:
         perform on and with regards to groups
         """
         return GroupOperations(
+            self._get_sacli()
+        )
+
+    @property
+    def server(self) -> ServerOperations:
+        """ServerOperations: an object representing the operations we can 
+        perform on and with regards to the server we are communicating with
+        """
+        return ServerOperations(
+            self._get_sacli()
+        )
+
+    @property
+    def vpn(self) -> VpnOperations:
+        """VpnOperations: Contains properties and operations that can be 
+        performed on the VPN daemon service running on the server.
+        """
+        return VpnOperations(
             self._get_sacli()
         )
 
