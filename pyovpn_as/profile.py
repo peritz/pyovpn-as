@@ -8,13 +8,13 @@ Some notes on profiles:
     * ``type`` is ``user_compile`` (due to prop_superuser being set)
     * ``group_declare`` is True
 """
-from pyovpn_as.api import cli
-import pyovpn_as.api.exceptions
-from typing import Any
 import logging
+from typing import Any
+
+import pyovpn_as.api.exceptions
+from pyovpn_as.api import cli
 
 from . import exceptions
-
 
 logger = logging.getLogger(__name__)
 
@@ -502,6 +502,10 @@ class ProfileOperations:
             server
     """
     def __init__(self, sacli: cli.RemoteSacli):
+        if not isinstance(sacli, cli.RemoteSacli):
+            raise TypeError(
+                f"Expected 'RemoteSacli' for arg 'sacli', got '{type(sacli)}'"
+            )
         self._sacli = sacli
 
 
