@@ -8,7 +8,7 @@ Attributes:
 
 import logging
 from datetime import datetime
-from typing import TypedDict, TypeVar
+from typing import Any, TypedDict, TypeVar
 
 from pyovpn_as.api.exceptions import (ApiClientParameterError,
                                       ApiClientPasswordComplexityError,
@@ -461,3 +461,87 @@ class RemoteSacli:
         return self._RpcClient.DisconnectUsers(
             [user,], restart, reason, client_reason, psid
         )
+
+    def Version(self) -> str:
+        """Get the version of the server we are communicating with
+
+        Returns:
+            str: The version of OpenVPN AccessServer the remote server is 
+                running
+        """
+        return self._RpcClient.GetASLongVersion()
+
+    
+    def Status(self) -> dict[str, Any]:
+        """Get the run status of the server's internal services
+
+        The returned dictionary contains the following keys:
+
+        * errors (dict): A dictionary of any service errors
+        * last_restarted (str): The time the server was last restarted
+        * service_status (dict[str, Union["on", "off"]]): status of each 
+        internal service
+
+        Below are some of the services that may be listed:
+
+        * api: The XML-RPC API
+        * auth: Authentication service (depends on backend? TODO clarify)
+        * bridge: Network bridge
+        * client_query
+        * crl: Certificate Revocation List
+        * daemon_pre
+        * db_push
+        * ip6tables_live
+        * ip6tables_openvpn
+        * iptables_live
+        * iptables_openvpn
+        * log
+        * openvpn_0
+        * openvpn_1
+        * subscriptiopn
+        * user
+        * web
+
+        Returns:
+            dict[str, Any]
+        """
+        return self._RpcClient.RunStatus()
+
+    
+    def GetVpnStatus(self) -> dict[str, dict[str, Any]]:
+        """Returns a detailed breakdown of the status of the VPN and the client 
+        connections
+
+        The resulting dictionary contains a key/value pair for each VPN daemon 
+        process. The default configuration likely leaves two open, one 
+        internally and the other external for users outside the local network 
+        to connect to. They will be called ``openvpn_X`` where 0 is the 
+        internal daemon.
+
+        Each of the interface dictionaries contains two lists of import:
+
+        * client_list - a list of connected clients and a status update on them
+        * routing_table - a list of all routes currently configured (likely one 
+        per client)
+
+        Each of these dictionaries also has a corresponding ``*_header`` 
+        dictionary mapping header names to the index of that header within the 
+        lists mentioned above.
+
+        Returns:
+            dict[str, dict[str, Any]]: A dictionary containing a detailed 
+                breakdown of the VPN status
+        """
+        return self._RpcClient.GetVPNStatus()
+
+    
+    def VpnSummary(self) -> dict[str, int]:
+        """Get a summary of the number of clients connected to the VPN
+
+        Returns:
+            dict[str, int]: A dictionary with a single key which is 
+                ``"n_clients"`` and whose value is the number of clients 
+                connected to the VPN
+        """
+        return self._RpcClient.GetVPNSummary()
+    
