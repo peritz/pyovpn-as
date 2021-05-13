@@ -63,11 +63,15 @@ class Profile:
     )
 
     def __init__(self, **attrs):
-        for key, value in attrs.items():
-            if not isinstance(key, str) or not isinstance(value, str):
+        for key in attrs:
+            if not isinstance(key, str):
                 raise TypeError(
-                    'All property keys and values must be strings'
+                    'All property keys must be strings'
                 )
+            try:
+                attrs[key] = str(attrs[key])
+            except:
+                raise ValueError('All values must be stringable')
         # Set attributes using Python magic to avoid issues in self.__setattr__
         # We set it twice, once so it is recognised in self.__setattr__ and 
         # again to help with linting
@@ -373,6 +377,7 @@ class UserProfile(Profile):
             )
         # __setattr__ issues, see Profile class
         object.__setattr__(self, 'username', username)
+        self.username = username
 
 
     @property
@@ -454,6 +459,7 @@ class GroupProfile(Profile):
             )
         # __setattr__ issues, see Profile class
         object.__setattr__(self, 'group_name', group_name)
+        self.group_name = group_name
 
 
     def __str__(self):
@@ -578,7 +584,7 @@ class ProfileOperations:
                     new_props[k] = profile.props[k]
 
         # Create new profile object (checks integrity of attributes)
-        new_profile = Profile(new_props)
+        new_profile = Profile(**new_props)
         
         try:
             # Set properties required on the new profile
