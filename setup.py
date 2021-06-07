@@ -10,7 +10,7 @@ setup(
         'pyovpn_as',
         'pyovpn_as.api'
     ],
-    version='0.0.4',
+    version='0.0.6',
     license='GPL',
     description='A Python library built on XML-RPC that demystifies remote interaction with OpenVPN Access Server',
     long_description=long_desc,
@@ -18,7 +18,7 @@ setup(
     author='Ryan Harrison',
     author_email='ryanharrison.opensource@protonmail.com',
     url='https://github.com/ryanharrison554/pyovpn-as',
-    download_url='https://github.com/ryanharrison554/pyovpn-as/archive/v_0_0_4.tar.gz',
+    download_url='https://github.com/ryanharrison554/pyovpn-as/archive/v_0_0_6.tar.gz',
     keywords=['OpenVPN', 'AccessServer', 'Access Server', 'XML-RPC'],
     classifiers=[
         'Development Status :: 3 - Alpha',
