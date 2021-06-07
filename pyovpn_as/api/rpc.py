@@ -265,7 +265,7 @@ class RpcClient(object):
                 raise new_err from fault
 
     def close(self):
-        self._serv_proxy.close()
+        self.__exit__()
 
     def __enter__(self):
         return self
@@ -273,7 +273,7 @@ class RpcClient(object):
     def __exit__(self):
         """Cleanup resources on exit, i.e. close the RPC connection
         """
-        self.close()
+        self._serv_proxy.__exit__()
 
     def __getattr__(self, attr: str) -> Any:
         """Magic to return either the raw ServerProxy call or a supported 
