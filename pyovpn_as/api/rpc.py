@@ -232,7 +232,9 @@ class RpcClient(object):
         self._debug = kwargs.get('debug', False)
         self._allow_unsupported= kwargs.get('allow_unsupported', False)
 
-        auth_string = f'{username}:{password}'
+        safe_username = urllib.parse.quote(username, safe='')
+        safe_password = urllib.parse.quote(password, safe='')
+        auth_string = f'{safe_username}:{safe_password}'
         parsed_endpoint = urllib.parse.urlparse(endpoint)
         parsed_endpoint = parsed_endpoint._replace(
             netloc=f'{auth_string}@{parsed_endpoint.netloc}'
