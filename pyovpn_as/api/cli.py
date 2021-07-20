@@ -8,7 +8,7 @@ Attributes:
 
 import logging
 from datetime import datetime
-from typing import Any, TypedDict, TypeVar
+from typing import TypeVar
 
 from pyovpn_as.api.exceptions import (ApiClientParameterError,
                                       ApiClientPasswordComplexityError,
@@ -141,12 +141,7 @@ class RemoteSacli:
             raise complexity_err
         
         return True
-
-    
-    class SetLocalPasswordReturnVal(TypedDict):
-        status: bool
-        reason: str
-    
+            
 
     def UserPropPut(
         self,
@@ -154,7 +149,7 @@ class RemoteSacli:
         key: str,
         value: XML_RPC_VAL,
         noui: bool=False
-    ) -> list[bool, dict]:
+    ) -> list:
         """Add a property to a user profile (create user profile if it doesn't
            exist)
 
@@ -177,9 +172,9 @@ class RemoteSacli:
 
     def UserPropGet(
         self,
-        pfilt: list[str]=None,
-        tfilt: list[str]=None
-    ) -> dict[str, dict[str, XML_RPC_VAL]]:
+        pfilt: list=None,
+        tfilt: list=None
+    ) -> dict:
         """Retrieves a list of profiles from the server, filtering on profile
            name and profile type (e.g. user_connect or user_connect_hidden)
 
@@ -198,7 +193,7 @@ class RemoteSacli:
         self,
         user: str,
         key: str
-    ) -> list[bool, dict]:
+    ) -> list:
         """Delete a property from a profile
 
         Args:
@@ -223,7 +218,7 @@ class RemoteSacli:
         """
         self._RpcClient.UserPropProfileDelete(user)
 
-    def UserPropCount(self, tfilt: list[str]=None) -> int:
+    def UserPropCount(self, tfilt: list=None) -> int:
         """Count the number of profiles that exist by filtering on profile type
 
         Args:
@@ -249,7 +244,7 @@ class RemoteSacli:
         new_pass: str,
         cur_pass: str=None,
         ignore_checks: bool=False
-    ) -> SetLocalPasswordReturnVal:
+    ) -> dict:
         """Set the password for a user if using local auth
 
         This function works a little differently to how the CLI function works
@@ -390,7 +385,7 @@ class RemoteSacli:
         """
         return self._RpcClient.GetUserlogin(user)
 
-    def Get1(self, cn: str) -> list[str]:
+    def Get1(self, cn: str) -> list:
         """Get a unified connection profile for the given common name
 
         This connection profile can be written to a file for import into most
@@ -406,7 +401,7 @@ class RemoteSacli:
         """
         return self._RpcClient.Get1(cn)
 
-    def EnumClients(self) -> list[str]:
+    def EnumClients(self) -> list:
         """Fetch the list of client names in the database where a client is a
            common name that can connect to the VPN
 
@@ -416,8 +411,8 @@ class RemoteSacli:
         return self._RpcClient.EnumClients()
 
     def ConfigQuery(
-        self, prof: str=None, plist: list[str]=None
-    ) -> dict[str, str]:
+        self, prof: str=None, plist: list=None
+    ) -> dict:
         """Fetch the configuration by filtering on the given search terms
 
         Args:
@@ -472,7 +467,7 @@ class RemoteSacli:
         return self._RpcClient.GetASLongVersion()
 
     
-    def Status(self) -> dict[str, Any]:
+    def Status(self) -> dict:
         """Get the run status of the server's internal services
 
         The returned dictionary contains the following keys:
@@ -508,7 +503,7 @@ class RemoteSacli:
         return self._RpcClient.RunStatus()
 
     
-    def GetVpnStatus(self) -> dict[str, dict[str, Any]]:
+    def GetVpnStatus(self) -> dict:
         """Returns a detailed breakdown of the status of the VPN and the client 
         connections
 
@@ -535,7 +530,7 @@ class RemoteSacli:
         return self._RpcClient.GetVPNStatus()
 
     
-    def VpnSummary(self) -> dict[str, int]:
+    def VpnSummary(self) -> dict:
         """Get a summary of the number of clients connected to the VPN
 
         Returns:

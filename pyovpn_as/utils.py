@@ -12,7 +12,7 @@ from . import exceptions
 
 logger = logging.getLogger(__name__)
 
-def debug_log_call(redact: list[Any]=['password',]):
+def debug_log_call(redact: list=['password',]):
     """Logs the function called and the arguments passed at the debug level
 
     Args:

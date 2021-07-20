@@ -208,7 +208,7 @@ class Profile:
 
     
     @property
-    def props(self) -> dict[str, Any]:
+    def props(self) -> dict:
         """dict[str, Any]: The properties set on the profile
 
         When this is requested, we immediately resolve the type in the case 
