@@ -30,7 +30,7 @@ class ClientStatus:
         headers (dict[str, int]): A dictionary mapping header names to index in 
             the attributes list
     """
-    def __init__(self, attributes: list[str], headers: dict[str, int]):
+    def __init__(self, attributes: list, headers: dict):
         self.connected_since = datetime.fromtimestamp(attributes[
             headers['Connected Since (time_t)']
         ])
@@ -122,7 +122,7 @@ class VPNStatus:
     Raises:
         TypeError: if the connection_summary is not a dictionary
     """
-    def __init__(self, daemon_name: str, connection_summary: dict[str, Any]):
+    def __init__(self, daemon_name: str, connection_summary: dict):
         if not isinstance(connection_summary, dict):
             raise TypeError(
                 f"Expected 'dict' for arg 'connection_summary', got "
@@ -158,7 +158,7 @@ class VpnOperations:
 
     
     @property
-    def status(self) -> list[VPNStatus]:
+    def status(self) -> list:
         """list[VpnStatus]: The detailed status of connections to the VPN 
         daemons
         """

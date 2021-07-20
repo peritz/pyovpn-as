@@ -133,7 +133,7 @@ class GroupOperations(ProfileOperations):
 
     
     @utils.debug_log_call()
-    def list_groups(self) -> list[GroupProfile]:
+    def list_groups(self) -> list:
         """Lists all groups present on the server
 
         Returns:

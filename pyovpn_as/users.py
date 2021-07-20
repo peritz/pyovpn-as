@@ -373,7 +373,7 @@ class UserOperations(ProfileOperations):
 
     
     @utils.debug_log_call()
-    def list_users(self) -> list[UserProfile]:
+    def list_users(self) -> list:
         """Lists all users present on the server
 
         Returns:
