@@ -1,0 +1,334 @@
+{
+    "UserPropProfileMultiGet": {
+        "params": [
+            {
+                "name": "pfilt",
+                "type": "list[str]",
+                "required": true,
+                "null": true,
+                "description": "Filter for profiles on type"
+            },
+            {
+                "name": "tfilt",
+                "type": "list[str]",
+                "required": false,
+                "null": true,
+                "description": "Filter for profiles on name"
+            }
+        ],
+        "returns": "dict[str, dict]: Describes current existing profiles, where the keys are the profile names and the values are the profile descriptions"
+    },
+
+    "UserPropProfileCount": {
+        "params": [
+            {
+                "name": "tfilt",
+                "type": "list[str]",
+                "required": false,
+                "null": true,
+                "description": "Filter for profiles on type"
+            }
+        ],
+        "returns": "int: number of profiles matching the given filter"
+    },
+
+    "UserPropPut": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Username to change properties on"
+            },
+            {
+                "name": "props",
+                "type": "dict[str]",
+                "required": true,
+                "null": false,
+                "description": "Properties to change on the given user"
+            },
+            {
+                "name": "noui",
+                "type": "bool",
+                "required": false,
+                "null": false,
+                "description": "Whether the profile should be hidden on the Web Admin UI or not"
+            }
+        ],
+        "returns": "None"
+    },
+
+    "UserPropReplace": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Username whose profile to replace"
+            },
+            {
+                "name": "profile",
+                "type": "dict[str]",
+                "required": true,
+                "null": false,
+                "description": "Replacement profile"
+            }
+        ],
+        "returns": "list[bool, dict]: {True, {}} if operation succeeded"
+    },
+
+    "UserPropDel": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Username from which to delete properties"
+            },
+            {
+                "name": "keys",
+                "type": "list[str]",
+                "required": true,
+                "null": false,
+                "description": "List of keys to delete from profile"
+            }
+        ],
+        "returns": "None"
+    },
+
+    "UserPropProfileDelete": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Username of the profile to delete"
+            }
+        ],
+        "returns": "None"
+    },
+
+    "GetVPNSummary": {
+        "params": [],
+        "returns": "dict: A summary of the VPN, including how may are connected"
+    },
+
+    "GetVPNStatus": {
+        "params": [],
+        "returns": "dict: Current status of the VPN"
+    },
+
+    "GetASLongVersion": {
+        "params": [],
+        "returns": "str: Access Server Version"
+    },
+
+    "RunStatus": {
+        "params": [],
+        "returns": "dict: The run status of the server's internal services"
+    },
+
+    "LocalAuthEnabled": {
+        "params": [],
+        "returns": "bool: Whether or not Local Authentication is being used/is enabled"
+    },
+
+    "SetLocalPassword": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": true,
+                "description": "User to set password for"
+            },
+            {
+                "name": "new_pass",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "default": "",
+                "description": "Password to set"
+            },
+            {
+                "name": "cur_pass",
+                "type": "str",
+                "required": false,
+                "null": true,
+                "description": "Current password (if required, can be null, but only in conjunction with ignore_checks)"
+            },
+            {
+                "name": "ignore_checks",
+                "type": "bool",
+                "required": false,
+                "null": true,
+                "description": "Ignore all complexity checks for the password and ignore value of cur_pass. I.e. set password to whatever is given regardless of whether the current password is correct or not."
+            }
+        ],
+        "returns": "dict: {'status': bool, 'reason': str} Where the status is whether or not the operation succeeded and 'reason' is why the status is the value that it is."
+    },
+
+    "RemoveLocalPassword": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "User whose password we want to remove"
+            }
+        ],
+        "returns": null
+    },
+
+    "AutoGenerateClient": {
+        "params": [],
+        "returns": null,
+        "description": "Generate a client record if none exists for the current user"
+    },
+
+    "AutoGenerateOnBehalfOf": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "The user for which to generate the client record. The username of the user we are generating the client config for will become the common name associated with the certificate"
+            }
+        ],
+        "returns": "None"
+    },
+
+    "RevokeCert": {
+        "params": [
+            {
+                "name": "cn",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Common name of the certificate to revoke"
+            }
+        ],
+        "returns": null
+    },
+
+    "GetUserlogin": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": false,
+                "null": true,
+                "description": "User to get user-locked profile for. If not passed, defaults to the current requesting user"
+            }
+        ],
+        "returns": "User-locked configuration profile"
+    },
+
+    "RevokeUser": {
+        "params": [
+            {
+                "name": "user",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "User whose certificates we want to revoke"
+            }
+        ],
+        "returns": null
+    },
+
+    "Get1": {
+        "params": [
+            {
+                "name": "cn",
+                "type": "str",
+                "required": true,
+                "null": false,
+                "description": "Common name of the unified certificate to get"
+            },
+            {
+                "name": "alt",
+                "type": "str",
+                "required": false,
+                "null": true,
+                "description": "This parameter is not yet supported, and is not documented well enough to understand its purpose."
+            }
+        ],
+        "returns": "list[str]: the client connection configuration for an OpenVPN client with all certificates and private keys embedded. This will work for most OpenVPN clients"
+    },
+
+    "EnumClients": {
+        "params": [],
+        "returns": "list[str]: A list of client configuration names that have a record in the db. This is the list of common names that can be used to connect to the VPN."
+    },
+
+
+    "ConfigQuery": {
+        "params": [
+            {
+                "name": "prof",
+                "type": "str",
+                "required": true,
+                "null": true,
+                "description": "Profile name to fetch from config DB"
+            },
+            {
+                "name": "pfilt",
+                "type": "list[str]",
+                "required": true,
+                "null": true,
+                "description": "List of profile filter terms"
+            }
+        ],
+        "returns": "dict: Configuration profile specified by the above filter terms. If no filter terms are applied, the active configuration is retrieved"
+    },
+
+    "DisconnectUsers": {
+        "params": [
+            {
+                "name": "user",
+                "type": "list[str]",
+                "required": true,
+                "null": false,
+                "default": [],
+                "description": "List of usernames to disconnect from the server"
+            },
+            {
+                "name": "restart",
+                "type": "bool",
+                "required": false,
+                "null": true,
+                "default": false,
+                "description": "Whether or not to just send a restart signal to restart the client or to just halt the client. Behvaiour when null not known"
+            },
+            {
+                "name": "reason",
+                "type": "str",
+                "required": false,
+                "null": true,
+                "description": "Reason for disconnection which is logged on the server"
+            },
+            {
+                "name": "client_reason",
+                "type": "str",
+                "required": false,
+                "null": true,
+                "description": "Reason for disconnection which is sent to the client"
+            },
+            {
+                "name": "psid",
+                "type": "bool",
+                "required": false,
+                "null": true,
+                "description": "Preserves the most recently used Session ID for this user so that they can immediately reconnect without renegotiating a session ID. Use this with `restart` to invite users to reconnect with the same session ID"
+            }
+        ],
+        "returns": "int: The number of users that were disconnected"
+    }
+}
