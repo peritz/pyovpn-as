@@ -9,7 +9,7 @@ class ApiClientBaseException(Exception):
     """
     pass
 
-class ApiCientAuthError(ApiClientBaseException):
+class ApiClientAuthError(ApiClientBaseException):
     """Given by Fault Code 9007, this error pertains to the user either not 
        having correct permissions or their login being incorrect.
     """
