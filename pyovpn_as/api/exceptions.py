@@ -50,7 +50,7 @@ class ApiClientPasswordComplexityError(ApiClientBaseException):
     """
     pass
 
-class ApiClientPasswordIncorrectError(ApiCientAuthError):
+class ApiClientPasswordIncorrectError(ApiClientAuthError):
     """Raised when the current password sent to the server during a password
        password change method call (e.g. SetLocalPassword) is incorrect
     """
@@ -104,7 +104,7 @@ def translate_fault(err: Exception) -> None:
             'Number of parameters is incorrect'
         )
     elif err.faultCode == 9007:
-        return ApiCientAuthError(
+        return ApiClientAuthError(
             'Either your credentials are wrong or your permissions are not'
             ' correct to run the given method.'
         )
