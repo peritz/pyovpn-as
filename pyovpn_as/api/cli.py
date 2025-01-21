@@ -427,6 +427,19 @@ class RemoteSacli:
         """
         return self._RpcClient.ConfigQuery(prof, plist)
 
+    def ConfigPut(
+        self,
+        key: str,
+        value: str,
+    ) -> None:
+        """Set a config option
+
+        Args:
+            key (str): Config key to put
+            value (str): Value of the config option
+        """
+        return self._RpcClient.ConfigPut({key: value})
+
     def DisconnectUser(
         self,
         user: str,
