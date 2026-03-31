@@ -34,3 +34,7 @@ keywords = ['OpenVPN', 'AccessServer', 'Access Server', 'HTTP']
 homepage = "https://github.com/peritz/pyovpn-as"
 repository = "https://github.com/peritz/pyovpn-as.git"
 issues = "https://github.com/peritz/pyovpn-as/issues/"
+
+[tool.uv.build-backend]
+module-name = "pyovpn_as"
+module-root = ""
