@@ -1,0 +1,36 @@
+[build-system]
+requires = ["uv_build >= 0.11.2, <0.12"]
+build-backend = "uv_build"
+
+
+[project]
+name = "pyovpn-as"
+description = "A Python library that demystifies remote interaction with OpenVPN Access Server"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["requests"]
+dynamic = ["version"]
+authors = [
+    {name = "Peritz", email = "peritz@pardonmynoot.com"}
+]
+license = "GPL-3.0-or-later"
+classifiers = [
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Developers',
+    'Topic :: Software Development :: Libraries',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    'Natural Language :: English',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
+]
+keywords = ['OpenVPN', 'AccessServer', 'Access Server', 'HTTP']
+
+[project.urls]
+homepage = "https://github.com/peritz/pyovpn-as"
+repository = "https://github.com/peritz/pyovpn-as.git"
+issues = "https://github.com/peritz/pyovpn-as/issues/"
