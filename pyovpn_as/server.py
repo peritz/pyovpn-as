@@ -5,7 +5,7 @@ the server's internal services
 import logging
 from datetime import datetime
 
-from pyovpn_as.api import cli
+from pyovpn_as.api import client
 
 logger = logging.getLogger(__name__)
 
@@ -18,22 +18,22 @@ class ServerOperations:
     access it via AccessServerManagementClient.server.
 
     Args:
-        sacli (cli.RemoteSacli): The client we use to communicate with the
+       client(RestApiClient) : The client we use to communicate with the
             server
     """
-    def __init__(self, sacli: cli.RemoteSacli):
-        if not isinstance(sacli, cli.RemoteSacli):
+    def __init__(self, client: client.RestApiClient):
+        if not isinstance(client, client.RestApiClient):
             raise TypeError(
-                f"Expected 'RemoteSacli' for arg 'sacli', got '{type(sacli)}'"
+                f"Expected 'RestApiClient' for arg 'client', got '{type(client)}'"
             )
-        self._sacli = sacli
+        self._client = client
 
     
     @property
     def version(self) -> str:
         """str: Version of the server we are communicating with
         """
-        return self._sacli.Version()
+        return self._client.get("/server/info")["server_info"]["version"]
 
     
     @property
@@ -41,8 +41,5 @@ class ServerOperations:
         """datetime: The date and time the server's internal services were last 
         restarted
         """
-        status = self._sacli.Status()
-        return datetime.strptime(
-            status.get('last_restarted'),
-            '%a %b %d %H:%M:%S %Y'
-        )
+        status = self._client.get("/server/status")
+        return datetime.fromisoformat(status.get["last_restarted"])
