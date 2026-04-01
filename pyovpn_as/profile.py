@@ -9,7 +9,8 @@ Some notes on profiles:
     * ``group_declare`` is True
 """
 import logging
-from typing import Any
+from typing import Any, Union
+from dataclasses import dataclass, field
 
 import pyovpn_as.api.exceptions
 from pyovpn_as.api import cli
@@ -18,6 +19,128 @@ from . import exceptions
 
 logger = logging.getLogger(__name__)
 
+
+@dataclass
+class _DMZIP:
+    """DMZ IP and port that will be forwarded to the client
+
+    Attributes:
+        ip (str): The external IP address of the Access Server
+        protocol (str): The protocol, one of 'tcp', 'udp', or 'icmp'
+        start_port (int): The starting port for the dmz. If not specified all ports will be
+            forwarded.
+        end_port (int): The ending port for the dmz. If not specified and start_port is specified,
+            only the start_port will be forwarded.
+    """
+    ip: str
+    protocol: str
+    start_port: int = None
+    end_port: int = None
+
+@dataclass
+class _IPSubnet:
+    """Represents an IP subnet
+
+    Attributes:
+        ipv6 (bool): Whether or not this is an IPv6 subnet. If false, this is an IPv4 subnet
+        netip (string): IP address value
+        prefix_length (int): Prefix length of the subnet
+    """
+    ipv6: bool
+    netip: str
+    prefix_length: int
+
+@dataclass
+class _UserPropValue:
+    """Represents a value for a UserProp property for both user and group
+
+    Attributes:
+        value (Union[str, bool]): The value of the property. This can be a string or a 
+            boolean.
+        inherited (bool): Whether or not the property is inherited from a group or default
+            profile.
+        inherited_source_type (str): The type of profile the property is inherited from.
+            This can be one of 'group', 'default', 'implicit_default', or 'configuration'.
+        inherited_source_name (str): The name of the profile the property is inherited from.
+    """
+    value: Union[str, bool]
+    inherited: bool = False
+    inherited_source_type: str = None
+    inherited_source_name: str = None
+
+@dataclass
+class _UserProp:
+    """Represents a UserProp record common to both user and group
+
+    Attributes:
+        name (str): The name of the User or Group
+        deny (_UserPropValue): If true cannot connect or login
+        deny_web (_UserPropValue): If true cannot log in to web interface, but can still connect
+        compile (_UserPropValue): If true, the type is 'user_compile' instead of 'user_connect'
+            and user record is also queried on nftables/iptables compile and not only on connect
+        admin (_UserPropValue): If true, the user is a superuser and has access to all groups and properties
+        autologin (_UserPropValue): If true, users can download autologin profiles themselves
+        auth_method (_UserPropValue): The auth method that will be used for the user. Maps to user_auth_type
+            and default configuration, etc.
+        cc_commands (_UserPropValue): Custom OpenVPN directives that will be imported for the user
+            on the server side
+        totp (_UserPropValue): Specifies whether TOTP based MFA is required
+        password_strength (_UserPropValue): Password strength check is enforced when changing the
+            password for local auth
+        allow_password_change (_UserPropValue): Whether or not users can change their own password
+            via the web interface. Admins can always change user passwords including their own
+        reroute_gw (_UserPropValue): One of 'disable' and 'dns_only', or 'global'. Disables
+            redirection of the default route and/or DNS on the client. This does not block it on
+            the backend. If blocking on the backend is required, access lists should be added in
+            addition. Defaults to 'global' if not set.
+        allow_generate_profiles (_UserPropValue): Allow users themselves to generate connection
+            profiles.
+        bypass_subnets (list[_IPSubnet]): Subnets or hosts that are installed as bypass routes
+            on the client, i.e. that will bypass the VPN and use the normal non-VPN connection.
+    """
+    name: str
+    deny: _UserPropValue
+    deny_web: _UserPropValue
+    compile: _UserPropValue
+    admin: _UserPropValue
+    autologin: _UserPropValue
+    auth_method: _UserPropValue
+    cc_commands: _UserPropValue
+    totp: _UserPropValue
+    password_strength: _UserPropValue
+    allow_password_change: _UserPropValue
+    reroute_gw: _UserPropValue
+    allow_generate_profiles: _UserPropValue
+    bypass_subnets: list[_IPSubnet] = field(default_factory=list)
+
+@dataclass
+class _UserPropScripts:
+    """Represents the scripts that can be set on a user or group profile
+
+    Attributes:
+        cli_script_connect_win_user_connect (_UserPropValue): Windows user connection script
+        cli_script_connect_win_user_disconnect (_UserPropValue): Windows user disconnection script
+        cli_script_connect_win_admin_connect (_UserPropValue): Windows admin connection script
+        cli_script_connect_win_admin_disconnect (_UserPropValue): Windows admin disconnection script
+        cli_script_connect_mac_user_connect (_UserPropValue): Mac user connection script
+        cli_script_connect_mac_user_disconnect (_UserPropValue): Mac user disconnection script
+        cli_script_connect_mac_admin_connect (_UserPropValue): Mac admin connection script
+        cli_script_connect_mac_admin_disconnect (_UserPropValue): Mac admin disconnection script
+        cli_script_connect_win_env (dict): A dictionary mapping environment variable names to
+            values for Windows connection scripts
+        cli_script_connect_mac_env (dict): A dictionary mapping environment variable names to 
+            values for Mac connection scripts
+    """
+    cli_script_connect_win_user_connect: _UserPropValue
+    cli_script_connect_win_user_disconnect: _UserPropValue
+    cli_script_connect_win_admin_connect: _UserPropValue
+    cli_script_connect_win_admin_disconnect: _UserPropValue
+    cli_script_connect_mac_user_connect: _UserPropValue
+    cli_script_connect_mac_user_disconnect: _UserPropValue
+    cli_script_connect_mac_admin_connect: _UserPropValue
+    cli_script_connect_mac_admin_disconnect: _UserPropValue
+    cli_script_connect_win_env: dict[str, str] = field(default_factory=dict)
+    cli_script_connect_mac_env: dict[str, str] = field(default_factory=dict)
 
 class Profile:
     """Represents a profile on the OpenVPN Access Server and provides a logical
