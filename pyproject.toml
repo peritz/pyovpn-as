@@ -5,11 +5,11 @@ build-backend = "uv_build"
 
 [project]
 name = "pyovpn-as"
+version = "0.0.1"
 description = "A Python library that demystifies remote interaction with OpenVPN Access Server"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["requests"]
-dynamic = ["version"]
 authors = [
     {name = "Peritz", email = "peritz@pardonmynoot.com"}
 ]

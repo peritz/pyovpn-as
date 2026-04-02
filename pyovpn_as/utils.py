@@ -6,9 +6,8 @@ import secrets
 import string
 from typing import Any
 
-from pyovpn_as.api.cli import RemoteSacli
-
 from . import exceptions
+from .api.client import RestApiClient
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +80,7 @@ def generate_random_password(length: int=16, retries: int=10) -> str:
             )
         password = ''.join([secrets.choice(characters) for _ in range(length)])
         try:
-            complex = RemoteSacli.is_password_complex(password)
+            complex = RestApiClient.is_password_complex(password)
         except:
             continue
         tried += 1
